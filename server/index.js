@@ -22,59 +22,71 @@ import fs from 'fs';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Determine if we're in test mode
+// Determine environment
 const isTestEnv = process.env.NODE_ENV === 'test';
 const isProduction = process.env.NODE_ENV === 'production';
+const isDevelopment = !isTestEnv && !isProduction;
 
-// Load environment variables with proper priority
-if (!isTestEnv) {
-  console.log('=== Environment Setup ===');
+console.log(`Current NODE_ENV: ${process.env.NODE_ENV || 'development'}`);
 
-  // In production, we should use the environment variables set in Railway
-  // In development, we'll load from .env files
-  if (!isProduction) {
-    console.log('Loading development environment variables');
+// Environment variable loading strategy based on environment
+if (isTestEnv) {
+  // TEST ENVIRONMENT: Load from .env.test
+  console.log('Loading test environment variables from .env.test');
+  const testEnvPath = path.resolve(__dirname, '..', '.env.test');
+  dotenv.config({ path: testEnvPath });
+} else if (isDevelopment) {
+  // DEVELOPMENT ENVIRONMENT: Load from .env.local or .env.example
+  console.log('Loading development environment variables');
 
-    // First try to load .env.local (highest priority)
-    const localEnvPath = path.resolve(__dirname, '..', '.env.local');
-    const localEnvResult = dotenv.config({ path: localEnvPath });
-    if (localEnvResult.error) {
-      console.log('No .env.local found or error loading it:', localEnvResult.error.message);
+  // Clear any existing environment variables that might conflict
+  ['VITE_RECURSE_CLIENT_ID', 'VITE_RECURSE_CLIENT_SECRET', 'VITE_OAUTH_REDIRECT_URI'].forEach(key => {
+    if (process.env[key]) {
+      console.log(`Clearing existing ${key}`);
+      delete process.env[key];
+    }
+  });
 
-      // As a fallback, try to load from .env.example
-      const exampleEnvPath = path.resolve(__dirname, '..', '.env.example');
-      if (fs.existsSync(exampleEnvPath)) {
-        console.log('Falling back to .env.example as a template');
-        dotenv.config({ path: exampleEnvPath });
-      }
-    } else {
-      console.log('Successfully loaded environment from .env.local');
+  // First try to load .env.local (highest priority)
+  const localEnvPath = path.resolve(__dirname, '..', '.env.local');
+  const localEnvResult = dotenv.config({ path: localEnvPath });
+  if (localEnvResult.error) {
+    console.log('No .env.local found or error loading it:', localEnvResult.error.message);
+
+    // As a fallback, try to load from .env.example
+    const exampleEnvPath = path.resolve(__dirname, '..', '.env.example');
+    if (fs.existsSync(exampleEnvPath)) {
+      console.log('Falling back to .env.example as a template');
+      dotenv.config({ path: exampleEnvPath });
     }
   } else {
-    console.log('Using production environment variables from Railway');
+    console.log('Successfully loaded environment from .env.local');
   }
-
-  // Check critical environment variables
-  console.log('\n=== OAuth Configuration ===');
-  if (!process.env.VITE_RECURSE_CLIENT_ID) {
-    console.error('ERROR: Missing VITE_RECURSE_CLIENT_ID');
-  } else {
-    console.log(`Client ID: ${process.env.VITE_RECURSE_CLIENT_ID.substring(0, 8)}...`);
-  }
-
-  if (!process.env.VITE_RECURSE_CLIENT_SECRET) {
-    console.error('ERROR: Missing VITE_RECURSE_CLIENT_SECRET');
-  } else {
-    console.log(`Client Secret: Present`);
-  }
-
-  if (!process.env.VITE_OAUTH_REDIRECT_URI) {
-    console.error('ERROR: Missing VITE_OAUTH_REDIRECT_URI');
-  } else {
-    console.log(`Redirect URI: ${process.env.VITE_OAUTH_REDIRECT_URI}`);
-  }
-  console.log('========================\n');
+} else {
+  // PRODUCTION ENVIRONMENT: Use environment variables provided by Railway
+  console.log('Using production environment variables from Railway');
 }
+
+// Check and log critical environment variables
+console.log('\n=== OAuth Configuration ===');
+if (!process.env.VITE_RECURSE_CLIENT_ID) {
+  console.error('ERROR: Missing VITE_RECURSE_CLIENT_ID');
+} else {
+  console.log(`Client ID: ${process.env.VITE_RECURSE_CLIENT_ID.substring(0, 8)}...`);
+}
+
+if (!process.env.VITE_RECURSE_CLIENT_SECRET) {
+  console.error('ERROR: Missing VITE_RECURSE_CLIENT_SECRET');
+} else {
+  console.log(`Client Secret: Present`);
+}
+
+if (!process.env.VITE_OAUTH_REDIRECT_URI) {
+  console.error('ERROR: Missing VITE_OAUTH_REDIRECT_URI');
+} else {
+  console.log(`Redirect URI: ${process.env.VITE_OAUTH_REDIRECT_URI}`);
+}
+console.log('========================\n');
 
 // Set up the Express app
 const app = express();

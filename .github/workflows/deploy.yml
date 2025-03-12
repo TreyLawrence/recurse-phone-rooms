@@ -9,9 +9,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
-    # Run only when a PR is merged (not on direct pushes)
-    # This checks that the commit has an associated PR that was merged
-    if: contains(github.event.commits[0].message, 'Merge pull request')
+    # No conditional needed - branch protection ensures all pushes to main are from approved PRs
 
     steps:
       - name: Checkout
@@ -33,6 +31,6 @@ jobs:
         run: npm install -g @railway/cli
 
       - name: Deploy to Railway
-        run: railway up
+        run: railway up --project=25465eb5-0316-43b9-a8b4-c0f20668ac61 --service=76197fbe-c3a4-4358-ad81-75e8bd53afd3
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
