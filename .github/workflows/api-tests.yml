@@ -74,23 +74,29 @@ jobs:
           echo "Verifying test database..."
           PGPASSWORD=password psql -h postgres -U admin -d postgres -c '\l'
 
-      # Map localhost to postgres service for direct-db-setup.js
-      - name: Setup hosts to make localhost point to postgres
+      # Install socat for port forwarding
+      - name: Install socat for port forwarding
         run: |
-          echo "Setting up /etc/hosts to make localhost work with postgres service..."
+          echo "Installing socat for port forwarding..."
+          apt-get update
+          apt-get install -y socat
+
+      # Set up port forwarding from localhost:5432 to postgres:5432
+      - name: Setup port forwarding from localhost to postgres
+        run: |
+          echo "Setting up port forwarding from localhost:5432 to postgres:5432..."
           # Get the IP of the postgres service container
           POSTGRES_IP=$(getent hosts postgres | awk '{ print $1 }')
           echo "Postgres service IP: $POSTGRES_IP"
 
-          # Add the postgres service IP as localhost to /etc/hosts
-          echo "$POSTGRES_IP localhost" >> /etc/hosts
+          # Start socat in the background to forward connections
+          socat TCP-LISTEN:5432,fork TCP:$POSTGRES_IP:5432 &
 
-          # Verify the change
-          echo "Updated /etc/hosts:"
-          cat /etc/hosts
+          # Give socat a moment to start
+          sleep 2
 
-          # Test postgres connection using localhost
-          echo "Testing localhost connection to postgres:"
+          # Verify the connection works through the forwarded port
+          echo "Testing localhost forwarded connection:"
           PGPASSWORD=password psql -h localhost -U admin -d postgres -c 'SELECT version();'
 
       - name: Set up environment
