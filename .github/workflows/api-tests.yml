@@ -1,5 +1,5 @@
 name: API Tests
-# Adding this comment to force a new workflow run - Testing Playwright browser caching
+# Adding this comment to force a new workflow run - Testing with correct Playwright image tag
 
 on:
   push:
@@ -73,6 +73,25 @@ jobs:
 
           echo "Verifying test database..."
           PGPASSWORD=password psql -h postgres -U admin -d postgres -c '\l'
+
+      # Map localhost to postgres service for direct-db-setup.js
+      - name: Setup hosts to make localhost point to postgres
+        run: |
+          echo "Setting up /etc/hosts to make localhost work with postgres service..."
+          # Get the IP of the postgres service container
+          POSTGRES_IP=$(getent hosts postgres | awk '{ print $1 }')
+          echo "Postgres service IP: $POSTGRES_IP"
+
+          # Add the postgres service IP as localhost to /etc/hosts
+          echo "$POSTGRES_IP localhost" >> /etc/hosts
+
+          # Verify the change
+          echo "Updated /etc/hosts:"
+          cat /etc/hosts
+
+          # Test postgres connection using localhost
+          echo "Testing localhost connection to postgres:"
+          PGPASSWORD=password psql -h localhost -U admin -d postgres -c 'SELECT version();'
 
       - name: Set up environment
         run: |
