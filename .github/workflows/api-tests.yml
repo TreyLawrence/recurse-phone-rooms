@@ -12,7 +12,8 @@ jobs:
     # Use the official Playwright Docker image which has all dependencies pre-installed
     runs-on: ubuntu-latest
     container:
-      image: mcr.microsoft.com/playwright:v1.42.0-jammy
+      # Use the full version that comes with more system dependencies
+      image: mcr.microsoft.com/playwright:v1.42.0-jammy-with-deps
       options: --ipc=host
 
     services:
@@ -44,6 +45,18 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      # Check if PostgreSQL client exists and install if needed
+      - name: Ensure PostgreSQL client is available
+        run: |
+          if ! command -v psql &> /dev/null; then
+            echo "PostgreSQL client not found. Installing..."
+            apt-get update
+            apt-get install -y postgresql-client
+          else
+            echo "PostgreSQL client is already installed"
+            psql --version
+          fi
 
       - name: Debug PostgreSQL Connection
         run: |
