@@ -84,8 +84,26 @@ jobs:
           echo "Running direct database setup script..."
           node scripts/direct-db-setup.js
 
+      # Cache Playwright browsers - this is the key addition
+      - name: Cache Playwright browsers
+        uses: actions/cache@v3
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          # The cache key depends on the Playwright version in package-lock.json
+          key: playwright-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            playwright-${{ runner.os }}-
+
+      # Only run installation if cache miss
       - name: Install Playwright browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: npx playwright install --with-deps chromium
+
+      # If cache hit, just ensure browsers dependencies are installed
+      - name: Install Playwright dependencies (if cache hit)
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
 
       - name: Run API tests
         run: npm run test:api
