@@ -12,8 +12,8 @@ jobs:
     # Use the official Playwright Docker image which has all dependencies pre-installed
     runs-on: ubuntu-latest
     container:
-      # Use the full version that comes with more system dependencies
-      image: mcr.microsoft.com/playwright:v1.42.0-jammy-with-deps
+      # Use the official Playwright Docker image with Ubuntu Jammy (22.04 LTS) base
+      image: mcr.microsoft.com/playwright:v1.42.0-jammy
       options: --ipc=host
 
     services:
