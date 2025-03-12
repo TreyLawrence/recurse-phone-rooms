@@ -11,7 +11,7 @@ jobs:
 
     # Run only when a PR is merged (not on direct pushes)
     # This checks that the commit has an associated PR that was merged
-    if: github.event.commits[0].message contains 'Merge pull request'
+    if: contains(github.event.commits[0].message, 'Merge pull request')
 
     steps:
       - name: Checkout
