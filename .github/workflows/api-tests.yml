@@ -1,5 +1,5 @@
 name: API Tests
-# Adding this comment to force a new workflow run
+# Adding this comment to force a new workflow run - Testing Playwright browser caching
 
 on:
   push:
