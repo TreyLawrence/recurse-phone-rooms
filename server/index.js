@@ -24,32 +24,34 @@ const __dirname = path.dirname(__filename);
 
 // Determine if we're in test mode
 const isTestEnv = process.env.NODE_ENV === 'test';
+const isProduction = process.env.NODE_ENV === 'production';
 
 // Load environment variables with proper priority
 if (!isTestEnv) {
   console.log('=== Environment Setup ===');
-  // Clear any existing environment variables that might conflict
-  ['VITE_RECURSE_CLIENT_ID', 'VITE_RECURSE_CLIENT_SECRET', 'VITE_OAUTH_REDIRECT_URI'].forEach(key => {
-    if (process.env[key]) {
-      console.log(`Clearing existing ${key}`);
-      delete process.env[key];
-    }
-  });
 
-  // First try to load .env.local (highest priority)
-  const localEnvPath = path.resolve(__dirname, '..', '.env.local');
-  const localEnvResult = dotenv.config({ path: localEnvPath });
-  if (localEnvResult.error) {
-    console.log('No .env.local found or error loading it:', localEnvResult.error.message);
+  // In production, we should use the environment variables set in Railway
+  // In development, we'll load from .env files
+  if (!isProduction) {
+    console.log('Loading development environment variables');
 
-    // As a fallback, try to load from .env.example
-    const exampleEnvPath = path.resolve(__dirname, '..', '.env.example');
-    if (fs.existsSync(exampleEnvPath)) {
-      console.log('Falling back to .env.example as a template');
-      dotenv.config({ path: exampleEnvPath });
+    // First try to load .env.local (highest priority)
+    const localEnvPath = path.resolve(__dirname, '..', '.env.local');
+    const localEnvResult = dotenv.config({ path: localEnvPath });
+    if (localEnvResult.error) {
+      console.log('No .env.local found or error loading it:', localEnvResult.error.message);
+
+      // As a fallback, try to load from .env.example
+      const exampleEnvPath = path.resolve(__dirname, '..', '.env.example');
+      if (fs.existsSync(exampleEnvPath)) {
+        console.log('Falling back to .env.example as a template');
+        dotenv.config({ path: exampleEnvPath });
+      }
+    } else {
+      console.log('Successfully loaded environment from .env.local');
     }
   } else {
-    console.log('Successfully loaded environment from .env.local');
+    console.log('Using production environment variables from Railway');
   }
 
   // Check critical environment variables
@@ -472,9 +474,19 @@ app.delete('/api/bookings/:id', canDeleteBooking, async (req, res) => {
   }
 });
 
-// Catch-all route to handle frontend routing
-app.get('*', (req, res) => {
+// Serve static files from the frontend build directory
+const staticPath = path.join(__dirname, '..', 'dist');
+console.log(`Serving static files from: ${staticPath}`);
+app.use(express.static(staticPath));
+
+// Catch all API routes that haven't been matched and return 404
+app.all('/api/*', (req, res) => {
   res.status(404).json({ error: 'API endpoint not found' });
+});
+
+// Catch-all route to handle frontend routing - serve index.html for client-side routing
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'dist', 'index.html'));
 });
 
 // Start the server
