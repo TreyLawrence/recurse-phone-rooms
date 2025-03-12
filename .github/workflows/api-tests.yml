@@ -9,7 +9,11 @@ on:
 
 jobs:
   test:
+    # Use the official Playwright Docker image which has all dependencies pre-installed
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.42.0-jammy
+      options: --ipc=host
 
     services:
       # Set up PostgreSQL service for tests
@@ -45,24 +49,24 @@ jobs:
         run: |
           echo "Testing PostgreSQL connection..."
           # Check PostgreSQL version
-          PGPASSWORD=password psql -h localhost -U admin -d postgres -c 'SELECT version();'
+          PGPASSWORD=password psql -h postgres -U admin -d postgres -c 'SELECT version();'
 
           echo "List all databases..."
-          PGPASSWORD=password psql -h localhost -U admin -d postgres -c '\l'
+          PGPASSWORD=password psql -h postgres -U admin -d postgres -c '\l'
 
           echo "Creating test database..."
-          PGPASSWORD=password psql -h localhost -U admin -d postgres -c 'DROP DATABASE IF EXISTS recurse_bookings_test;'
-          PGPASSWORD=password psql -h localhost -U admin -d postgres -c 'CREATE DATABASE recurse_bookings_test;'
+          PGPASSWORD=password psql -h postgres -U admin -d postgres -c 'DROP DATABASE IF EXISTS recurse_bookings_test;'
+          PGPASSWORD=password psql -h postgres -U admin -d postgres -c 'CREATE DATABASE recurse_bookings_test;'
 
           echo "Verifying test database..."
-          PGPASSWORD=password psql -h localhost -U admin -d postgres -c '\l'
+          PGPASSWORD=password psql -h postgres -U admin -d postgres -c '\l'
 
       - name: Set up environment
         run: |
           # Create .env.test file with the same credentials as local test environment
           cat > .env.test << EOF
           VITE_DB_USER=admin
-          VITE_DB_HOST=localhost
+          VITE_DB_HOST=postgres
           VITE_DB_NAME=recurse_bookings_test
           VITE_DB_PASSWORD=password
           VITE_DB_PORT=5432
@@ -84,26 +88,7 @@ jobs:
           echo "Running direct database setup script..."
           node scripts/direct-db-setup.js
 
-      # Cache Playwright browsers - this is the key addition
-      - name: Cache Playwright browsers
-        uses: actions/cache@v3
-        id: playwright-cache
-        with:
-          path: ~/.cache/ms-playwright
-          # The cache key depends on the Playwright version in package-lock.json
-          key: playwright-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            playwright-${{ runner.os }}-
-
-      # Only run installation if cache miss
-      - name: Install Playwright browsers
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: npx playwright install --with-deps chromium
-
-      # If cache hit, just ensure browsers dependencies are installed
-      - name: Install Playwright dependencies (if cache hit)
-        if: steps.playwright-cache.outputs.cache-hit == 'true'
-        run: npx playwright install-deps chromium
+      # No need to cache or install Playwright browsers or dependencies - the Docker image has everything!
 
       - name: Run API tests
         run: npm run test:api
