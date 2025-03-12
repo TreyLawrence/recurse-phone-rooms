@@ -9,9 +9,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
-    # Run only when a PR is merged (not on direct pushes)
-    # This checks that the commit has an associated PR that was merged
-    if: contains(github.event.commits[0].message, 'Merge pull request')
+    # No conditional needed - branch protection ensures all pushes to main are from approved PRs
 
     steps:
       - name: Checkout
