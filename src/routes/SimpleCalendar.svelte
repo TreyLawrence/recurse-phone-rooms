@@ -1408,7 +1408,7 @@
         grid-auto-rows: auto;
         border: 1px solid #333;
         border-radius: 0.375rem;
-        overflow: hidden;
+        overflow: scroll;
         background-color: #1a1a1a;
         width: 100vw;
         max-width: 100vw;
@@ -1686,7 +1686,7 @@
         grid-auto-rows: auto;
         border: 1px solid #333; /* Darker border for the outer edge */
         border-radius: 0.5rem;
-        overflow: hidden;
+        overflow: scroll;
         background-color: #1a1a1a;
         width: 100vw; /* Use viewport width */
         max-width: 100vw; /* Ensure it doesn't exceed viewport */
