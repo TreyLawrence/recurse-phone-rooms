@@ -15,8 +15,8 @@
     let currentDate = new Date();
     let weekDays: Date[] = [];
 
-    // Time slots - 15 minute intervals from 8am to 12am
-    const hours = Array.from({ length: 16 }, (_, i) => i + 8); // 8am to 12am
+    // Time slots - 15 minute intervals for full day
+    const hours = Array.from({ length: 24 }, (_, i) => i); // 0am to 11pm (full 24 hours)
     const minutes = [0, 15, 30, 45];
     const timeSlots = hours.flatMap((hour) =>
         minutes.map((minute) => ({ hour, minute })),
@@ -197,6 +197,15 @@
 
         window.addEventListener("keydown", handleKeyDown);
 
+        // Scroll to business hours (8am) on initial load
+        setTimeout(() => {
+            const calendarGrid = document.querySelector(".calendar-grid");
+            if (calendarGrid) {
+                // Scroll to 8am (8 hours * 4 quarters * 20px per quarter = 640px)
+                calendarGrid.scrollTop = 640;
+            }
+        }, 100);
+
         return () => {
             window.removeEventListener("mouseup", handleMouseUp);
             window.removeEventListener("mousemove", handleMouseMove);
@@ -272,7 +281,8 @@
 
     // Format a time for display
     function formatTime(hour: number, minute: number): string {
-        const hourDisplay = hour > 12 ? hour - 12 : hour;
+        // Handle midnight (0) as 12 AM
+        const hourDisplay = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
         const period = hour >= 12 ? "PM" : "AM";
         const minuteDisplay =
             minute === 0 ? "" : `:${minute.toString().padStart(2, "0")}`;
@@ -372,8 +382,8 @@
 
         // Convert to hour fractions (assuming 60px per hour)
         const hourHeight = 60;
-        const startHour = 8 + Math.max(0, startY / hourHeight);
-        const endHour = 8 + Math.min(16, endY / hourHeight);
+        const startHour = Math.max(0, startY / hourHeight);
+        const endHour = Math.min(24, endY / hourHeight);
 
         return {
             startHour,
@@ -1707,9 +1717,9 @@
 
     .time-column {
         grid-column: 1;
-        grid-row: 2 / span 64; /* 16 hours * 4 quarters */
+        grid-row: 2 / span 96; /* 24 hours * 4 quarters */
         display: grid;
-        grid-template-rows: repeat(64, 15px); /* 15px per 15-minute interval */
+        grid-template-rows: repeat(96, 20px); /* Updated for 24 hours */
         background-color: #1a1a1a;
         border-right: 1px solid #333; /* Darker border */
         overflow: hidden; /* Ensure no content overflows */
@@ -1754,7 +1764,7 @@
 
     .day-column {
         display: grid;
-        grid-template-rows: repeat(64, 15px); /* 15px per 15-minute interval */
+        grid-template-rows: repeat(96, 20px); /* Updated for 24 hours */
         border-right: 1px solid #333; /* Darker border */
         min-width: 0; /* Allows columns to shrink below content size if needed */
         width: calc(
