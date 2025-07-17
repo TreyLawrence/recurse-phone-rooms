@@ -90,13 +90,22 @@
         });
 
         // Return height in pixels (1 minute = 1px)
-        return durationMinutes;
+        return durationMinutes * 1.33;
     }
 
     // Load data
+
+     async function retry() {
+        console.log("retrying")
+        import("../lib/auth").then(({ signOut, initiateOAuthLogin }) => {
+            signOut();
+            initiateOAuthLogin();
+        });
+    }
+
     async function loadData() {
-        try {
-            isLoading = true;
+        try{    
+        isLoading = true;
             error = null;
 
             const [roomsData, bookingsData] = await Promise.all([
@@ -760,6 +769,35 @@
         </button>
     </div>
 
+    <div  class="fixed top-2 left-4 z-[100] left-auto px-4 py-2"
+        style="position: fixed !important; left: 1rem !important; left: auto !important;">
+        <div class="flex justify-between items-center px-4">
+            <!-- Left aligned navigation buttons -->
+            <div class="flex space-x-2">
+                <button
+                    on:click={goToToday}
+                    class="px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-700"
+                >
+                    Today
+                </button>
+                <button
+                    on:click={prevWeek}
+                    class="w-10 h-10 bg-gray-700 text-white rounded-md hover:bg-gray-600 flex items-center justify-center"
+                    aria-label="Previous Week"
+                >
+                    ←
+                </button>
+                <button
+                    on:click={nextWeek}
+                    class="w-10 h-10 bg-gray-700 text-white rounded-md hover:bg-gray-600 flex items-center justify-center"
+                    aria-label="Next Week"
+                >
+                    →
+                </button>
+            </div>
+        </div>
+    </div>
+
     <div class="w-screen max-w-full px-4 py-2">
         <!-- Centered title -->
         <h1 class="text-2xl font-bold text-center mb-4 mt-2">
@@ -780,7 +818,7 @@
                 <span class="block sm:inline">{error}</span>
                 <button
                     class="bg-red-800 text-white px-4 py-2 rounded-md mt-2"
-                    on:click={loadData}>Retry</button
+                    on:click={retry}>Retry</button
                 >
             </div>
         {:else if rooms.length === 0}
@@ -793,34 +831,9 @@
                 >
             </div>
         {:else}
-            <div class="bg-gray-900 border border-gray-800 rounded-lg p-2">
-                <!-- Calendar Navigation -->
-                <div class="flex flex-col mb-4">
-                    <div class="flex justify-between items-center px-4">
-                        <!-- Left aligned navigation buttons -->
-                        <div class="flex space-x-2">
-                            <button
-                                on:click={goToToday}
-                                class="px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-700"
-                            >
-                                Today
-                            </button>
-                            <button
-                                on:click={prevWeek}
-                                class="w-10 h-10 bg-gray-700 text-white rounded-md hover:bg-gray-600 flex items-center justify-center"
-                                aria-label="Previous Week"
-                            >
-                                ←
-                            </button>
-                            <button
-                                on:click={nextWeek}
-                                class="w-10 h-10 bg-gray-700 text-white rounded-md hover:bg-gray-600 flex items-center justify-center"
-                                aria-label="Next Week"
-                            >
-                                →
-                            </button>
-                        </div>
-
+            <div class="bg-gray-900 border border-gray-800 rounded-lg p-2  ml-2">
+                <!-- Calendar Navigation -->                
+                    <div>
                         <!-- Centered month/year display -->
                         <h2 class="text-xl font-medium text-white">
                             {new Date(weekDays[0]).toLocaleDateString("en-US", {
@@ -853,8 +866,6 @@
                             {/each}
                         </div>
                     </div>
-                </div>
-
                 <!-- Calendar Grid - Global view with side-by-side concurrent events -->
                 <div class="calendar-grid">
                     <!-- Empty corner cell -->
@@ -1487,7 +1498,6 @@
 
     .time-cell {
         position: relative;
-        border-top: 1px solid #222; /* Changed from bottom to top border */
         border-bottom: none;
         min-height: 15px;
         height: 15px;
@@ -1782,7 +1792,6 @@
 
     .time-cell {
         position: relative;
-        border-top: 1px solid #222; /* Changed from bottom to top border */
         border-bottom: none;
         min-height: 15px;
         height: 15px;
