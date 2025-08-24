@@ -217,17 +217,7 @@
 
         window.addEventListener("keydown", handleKeyDown);
 
-        // Scroll to current time on initial load
-        setTimeout(() => {
-            const calendarGrid = document.querySelector(".calendar-grid");
-            if (calendarGrid) {
-                // Calculate scrollTop for current time
-                // Each hour = 60px, each minute = 1px (15min slot = 15px)
-                const now = new Date();
-                const scrollTop = now.getHours() * 60 + now.getMinutes();
-                calendarGrid.scrollTop = scrollTop;
-            }
-        }, 100);
+        // Initial scroll to current time will be handled by generateWeekView
 
         return () => {
             window.removeEventListener("mouseup", handleMouseUp);
@@ -259,12 +249,17 @@
             today: new Date().toDateString(),
             currentDate: currentDate.toDateString(),
         });
+
+        // After generating week view, scroll to current time if it's today
+        setTimeout(() => {
+            scrollToCurrentTimeIfToday();
+        }, 100);
     }
 
     // Navigation functions
     function goToToday() {
-        currentDate = new Date();
-        generateWeekView();
+        currentDate = new Date(); // Always reset to current date/time
+        generateWeekView(); // This will auto-scroll to current time
     }
 
     function prevWeek() {
@@ -779,6 +774,20 @@
         const minute = date.getMinutes();
         const scrollTop = hour * 60 + minute;
         calendarGrid.scrollTop = scrollTop;
+    }
+
+    // Scroll to current time only if today is visible in the current week
+    function scrollToCurrentTimeIfToday() {
+        const today = new Date();
+        const todayString = today.toDateString();
+        
+        // Check if today is in the current week view
+        const isCurrentWeek = weekDays.some(day => day.toDateString() === todayString);
+        
+        if (isCurrentWeek) {
+            scrollCalendarToTime(today);
+            console.log("Scrolled to current time:", today.toLocaleTimeString());
+        }
     }
 </script>
 
@@ -1447,7 +1456,6 @@
         grid-template-rows: repeat(96, 15px);
         border-right: 1px solid #23272f;
         min-width: 0;
-        width: calc((100vw - 60px) / 7);
         background: transparent;
     }
     .time-cell {
