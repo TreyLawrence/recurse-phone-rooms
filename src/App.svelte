@@ -32,7 +32,7 @@
   });
 </script>
 
-<main class="min-h-screen bg-gray-50">
+<main class="min-h-screen bg-slate-50">
   {#if path === "/oauth/callback"}
     <OAuthCallback />
   {:else if $user}

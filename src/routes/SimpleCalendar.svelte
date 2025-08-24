@@ -820,7 +820,7 @@
                             {new Date(weekDays[0]).toLocaleDateString("en-US", { month: "long", year: "numeric" })}
                         </h2>
                         <!-- Move legend here -->
-                        <div class="calendar-legend flex items-center gap-3">
+                        <div class="calendar-legend flex items-center gap-4">
                             {#each rooms as room}
                                 <div class="calendar-legend-item legend-button">
                                     <span class="legend-circle {room.name.toLowerCase().includes('green') ? 'circle-green' : room.name.toLowerCase().includes('lovelace') ? 'circle-lovelace' : ''}" aria-hidden="true"></span>
@@ -974,25 +974,15 @@
                 </svg>
             </button>
             {#if bookingSuccess}
-                <div class="modal-header pt-8 mb-6">
-                    <h3>Meeting Scheduled</h3>
-                </div>
-                <div class="modal-success">
-                    <div class="flex flex-col items-center text-center py-6">
-                        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                <div class="modal-success-content">
+                    <div class="text-center pt-6 pb-8">
+                        <h3 class="modal-success-title mb-6">Meeting Scheduled</h3>
+                        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4 mx-auto">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                             </svg>
                         </div>
-                        <p class="text-gray-600 mb-6">Your booking has been confirmed</p>
-                    </div>
-                    <div class="modal-actions flex justify-center pt-6 border-t border-gray-200">
-                        <button on:click={closeBookingForm} class="btn-base btn-md btn-primary">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                            </svg>
-                            Done
-                        </button>
+                        <p class="modal-success-text">Your booking has been confirmed</p>
                     </div>
                 </div>
             {:else}
@@ -1210,9 +1200,9 @@
         --line-height-relaxed: 1.625;
     }
 
-    /* Base Typography */
+    /* Base Typography - Force consistent font across ALL elements */
     * {
-        font-family: var(--font-family);
+        font-family: var(--font-family) !important;
     }
     
     .calendar-app {
@@ -1258,8 +1248,15 @@
         }
         .calendar-legend-item.legend-button {
             min-width: 85px !important;
-            font-size: var(--font-size-sm) !important;
-            padding: 6px 10px !important;
+            font-size: var(--font-size-xs) !important;
+            padding: 4px 8px !important;
+            gap: 0.25rem !important;
+        }
+        .calendar-month-header {
+            margin-bottom: 1rem !important;
+        }
+        .calendar-month-header > div:first-child {
+            margin-bottom: 0.75rem !important;
         }
         .legend-circle {
             width: 16px !important;
@@ -1351,7 +1348,15 @@
         padding: 0;
         overflow-x: hidden;
         background: var(--background-light);
-        font-family: var(--font-family);
+        font-family: var(--font-family) !important;
+    }
+
+    /* Ensure all form elements use consistent font */
+    :global(input),
+    :global(select),
+    :global(textarea),
+    :global(button) {
+        font-family: var(--font-family) !important;
     }
 
     /* ===== BUTTON SYSTEM ===== */
@@ -1523,14 +1528,17 @@
         background: var(--background-white);
         border-radius: var(--radius-md);
         border: 1px solid var(--border-light);
-        padding: 8px 18px;
+        padding: 10px 18px;
         min-width: 120px;
         text-align: center;
         font-size: var(--font-size-base);
         font-weight: var(--font-weight-medium);
         box-shadow: var(--shadow-sm);
-        margin-right: 0.75rem;
         transition: var(--transition);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
     }
     .calendar-legend-item:hover {
         transform: translateY(-2px);
@@ -1961,15 +1969,25 @@
         background: var(--border-medium);
         color: var(--text-primary);
     }
-    .modal-success {
-        padding: 0 2rem 2rem 2rem;
-        font-family: var(--font-family);
+    .modal-success-content {
+        padding: 2rem;
+        font-family: var(--font-family) !important;
     }
-    .modal-success p {
+    .modal-success-title {
+        font-size: var(--font-size-2xl);
+        font-weight: var(--font-weight-bold);
+        color: var(--text-primary);
+        font-family: var(--font-family) !important;
+        letter-spacing: 0.025em;
+        margin: 0;
+    }
+    .modal-success-text {
         color: var(--text-secondary);
         font-size: var(--font-size-base);
-        font-family: var(--font-family);
+        font-family: var(--font-family) !important;
         line-height: var(--line-height-normal);
+        font-weight: var(--font-weight-medium);
+        margin: 0;
     }
     .modal-error {
         background: #fef2f2;
