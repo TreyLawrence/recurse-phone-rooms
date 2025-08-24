@@ -63,14 +63,7 @@
         // For a 15px per 15-minute grid, each minute is 1px
         const position = (hour - 8) * 60 + minutes;
 
-        console.log("Booking position:", {
-            id: booking.id,
-            startTime: startTime.toLocaleString(),
-            hour,
-            minutes,
-            position,
-            pixels: position,
-        });
+        // console.log("Booking position:", { id: booking.id, position });
 
         return position;
     }
@@ -83,14 +76,7 @@
         const durationMs = endTime.getTime() - startTime.getTime();
         const durationMinutes = durationMs / (1000 * 60);
 
-        // DEBUG: Uncomment to debug height issues
-        console.log("Booking height:", {
-            id: booking.id,
-            startTime: startTime.toLocaleString(),
-            endTime: endTime.toLocaleString(),
-            durationMs,
-            durationMinutes,
-        });
+        // console.log("Booking height:", { id: booking.id, durationMinutes });
 
         // Return height in pixels (1 minute = 1px)
         return durationMinutes ;
@@ -99,7 +85,7 @@
     // Load data
 
      async function retry() {
-        console.log("retrying")
+        // console.log("retrying")
         import("../lib/auth").then(({ signOut, initiateOAuthLogin }) => {
             signOut();
             initiateOAuthLogin();
@@ -163,7 +149,7 @@
             bookings = bookingsWithUserDetails;
 
             // DEBUG: Log the loaded bookings
-            console.log("Loaded bookings with user details:", bookings);
+            // console.log("Loaded bookings with user details:", bookings);
 
             if (bookings.length > 0) {
                 // Log all booking times in a readable format for debugging
@@ -611,18 +597,18 @@
     function getRoomColor(roomId: number): string {
         // Find the room object by ID
         const room = rooms.find((r) => r.id === roomId);
-        if (!room) return "#4f46e5"; // Default color if room not found
+        if (!room) return "#6366f1"; // Default color if room not found
 
-        // Assign specific colors based on room name
+        // Assign specific colors based on room name - solid colors for consistency
         if (room.name.toLowerCase().includes("green")) {
-            return "linear-gradient(90deg, #16a34a 60%, #15803d 100%)"; // Green color for Green Phone Room
+            return "#588157"; // Green
         } else if (room.name.toLowerCase().includes("lovelace")) {
-            return "linear-gradient(90deg, #ec4899 60%, #f472b6 100%)"; // Pink color for Lovelace
+            return "#ffafcc"; // Pastel pink
         }
 
         // Fallback colors if needed
         const index = rooms.findIndex((r) => r.id === roomId);
-        const colors = ["#4f46e5", "#16a34a"];
+        const colors = ["#588157", "#ffafcc"];
         return colors[index % colors.length];
     }
 
@@ -791,33 +777,15 @@
     }
 </script>
 
-<div class="calendar-app bg-gray-900 min-h-screen text-white overflow-x-hidden flex flex-col items-center w-full">
+<div class="calendar-app bg-slate-50 min-h-screen text-gray-900 overflow-x-hidden flex flex-col items-center w-full">
     
 
     <!-- Legend and Title Group -->
     <div class="calendar-above-grid w-full max-w-[1100px] flex flex-col items-center mb-4">
 
-        <h1 class="calendar-title text-3xl font-bold text-center mb-2 mt-2 tracking-tight"
-            style="
-                background: linear-gradient(90deg, #60a5fa 0%, #a78bfa 100%);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                background-clip: text;
-                text-fill-color: transparent;
-                letter-spacing: 0.04em;
-                padding: 0.5rem 1.5rem;
-                border-radius: 0.75rem;
-                box-shadow: 0 2px 16px 0 rgba(96,165,250,0.10);
-                font-size: 2.5rem;
-                font-weight: 800;
-                margin-bottom: 0.5rem;
-                margin-top: 0.5rem;
-                text-align: center;
-                line-height: 1.1;
-            "
-        >
-            <svg xmlns="http://www.w3.org/2000/svg" class="inline-block align-middle mr-2" width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="vertical-align: middle; filter: drop-shadow(0 2px 8px #60a5fa88);">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+        <h1 class="calendar-title text-3xl font-bold text-center mb-2 mt-2 tracking-tight">
+            <svg xmlns="http://www.w3.org/2000/svg" class="inline-block align-middle mr-3" width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="vertical-align: middle; filter: drop-shadow(0 2px 12px rgba(59,130,246,0.3));">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
             </svg>
             Phone Room Calendar
         </h1>
@@ -825,57 +793,82 @@
 
     <main class="calendar-main w-full max-w-[1100px] px-4 py-2 flex flex-col items-center">
         {#if isLoading}
-            <div class="calendar-loading flex justify-center my-10">
-                <div class="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+            <div class="calendar-loading flex justify-center my-12">
+                <div class="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
             </div>
         {:else if error}
-            <div class="calendar-error bg-red-900 border border-red-700 text-red-100 px-4 py-3 rounded relative mb-4">
-                <strong class="font-bold">Error!</strong>
-                <span class="block sm:inline">{error}</span>
-                <button class="bg-red-800 text-white px-4 py-2 rounded-md mt-2" on:click={retry}>Retry</button>
+            <div class="calendar-error bg-red-50 border border-red-200 text-red-800 px-6 py-4 rounded-xl relative mb-6 shadow-sm">
+                <strong class="font-semibold">Error!</strong>
+                <span class="block sm:inline ml-1">{error}</span>
+                <button class="btn-base btn-md btn-danger mt-3" on:click={retry}>
+                    <svg xmlns="http://www.w3.org/2000/svg"  fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    Retry
+                </button>
             </div>
         {:else if rooms.length === 0}
-            <div class="calendar-no-rooms bg-yellow-900 border border-yellow-700 text-yellow-100 px-4 py-3 rounded relative mb-4">
-                <strong class="font-bold">No Rooms Available</strong>
-                <span class="block sm:inline">No phone rooms were found in the system.</span>
+            <div class="calendar-no-rooms bg-amber-50 border border-amber-200 text-amber-800 px-6 py-4 rounded-xl relative mb-6 shadow-sm">
+                <strong class="font-semibold">No Rooms Available</strong>
+                <span class="block sm:inline ml-1">No phone rooms were found in the system.</span>
             </div>
         {:else}
-            <section class="calendar-section bg-gray-900 border border-gray-800 rounded-lg p-2 ml-2 w-full max-w-[1100px]" style="height: 70vh;">
-                <header class="calendar-month-header mb-4 flex items-center gap-4 justify-between px-2">
-                    <h2 class="calendar-month text-xl font-semibold text-white tracking-tight">
-                        {new Date(weekDays[0]).toLocaleDateString("en-US", { month: "long", year: "numeric" })}
-                    </h2>
-                    <div class="calendar-nav flex items-center gap-2 ml-2">
+            <section class="calendar-section bg-white border border-gray-200 rounded-xl p-6 w-full max-w-[1100px] mx-auto" style="height: 70vh;">
+                <header class="calendar-month-header mb-6 flex items-center gap-4 justify-between px-4 flex-wrap">
+                    <div class="flex items-center gap-8">
+                        <h2 class="calendar-month text-2xl font-semibold text-gray-800 tracking-tight">
+                            {new Date(weekDays[0]).toLocaleDateString("en-US", { month: "long", year: "numeric" })}
+                        </h2>
+                        <!-- Move legend here -->
+                        <div class="calendar-legend flex items-center gap-3">
+                            {#each rooms as room}
+                                <div class="calendar-legend-item legend-button">
+                                    <span class="legend-circle {room.name.toLowerCase().includes('green') ? 'circle-green' : room.name.toLowerCase().includes('lovelace') ? 'circle-lovelace' : ''}" aria-hidden="true"></span>
+                                    <span class="text-sm font-medium text-gray-800">{room.name}</span>
+                                </div>
+                            {/each}
+                        </div>
+                    </div>
+                    <div class="calendar-nav flex items-center gap-3 flex-shrink-0">
                         <button
                             on:click={goToToday}
-                            class="calendar-nav-today px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-700"
+                            class="btn-base btn-md calendar-nav-today"
                         >
+                            <svg xmlns="http://www.w3.org/2000/svg"  fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
                             Today
                         </button>
                         <button
                             on:click={prevWeek}
-                            class="calendar-nav-prev w-10 h-10 bg-gray-700 text-white rounded-md hover:bg-gray-600 flex items-center justify-center"
+                            class="btn-base btn-nav-icon"
                             aria-label="Previous Week"
                         >
-                            ←
+                            <svg xmlns="http://www.w3.org/2000/svg"  fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                            </svg>
                         </button>
                         <button
                             on:click={nextWeek}
-                            class="calendar-nav-next w-10 h-10 bg-gray-700 text-white rounded-md hover:bg-gray-600 flex items-center justify-center"
+                            class="btn-base btn-nav-icon"
                             aria-label="Next Week"
                         >
-                            →
+                            <svg xmlns="http://www.w3.org/2000/svg"  fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
                         </button>
                         <button
                         on:click={handleSignOut}
-                        class="calendar-signout px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-md text-white text-sm absolute right-0 top-1/2 -translate-y-1/2"
-                        style="background-color: #2563eb !important;"
+                        class="btn-base btn-md calendar-signout"
                     >
+                        <svg xmlns="http://www.w3.org/2000/svg"  fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
                         Sign Out
                     </button>
                     </div>
                 </header>
-                <div class="calendar-grid" style="width: 100%; max-width: 1100px; height: 60vh;">
+                <div class="calendar-grid" style="width: 100%; height: 60vh;">
                     <div class="calendar-corner corner-header"></div>
                     {#each weekDays as day}
                         <div class="calendar-day-header day-header {isToday(day) ? 'today' : ''} {isWeekend(day) ? 'weekend' : ''}">
@@ -956,20 +949,15 @@
                     {/each}
                 </div>
             </section>
-            <!-- Move the legend here, below the calendar grid -->
-            <div class="calendar-legend flex items-center gap-4 mb-3 w-full justify-center relative mt-4">
-                {#each rooms as room}
-                    <div
-                        class="calendar-legend-item legend-button flex items-center justify-center"
-                        style="box-shadow: 0 1px 3px rgba(0,0,0,0.5); border-radius: 4px; padding: 2px 14px; min-width: 110px; text-align: center; gap: 0.75rem;"
-                    >
-                        <span class="legend-circle {room.name.toLowerCase().includes('green') ? 'circle-green' : room.name.toLowerCase().includes('lovelace') ? 'circle-lovelace' : ''}" aria-hidden="true"></span>
-                        <span class="text-sm font-medium" style="color: #fff; text-shadow: 0px 1px 2px rgba(0,0,0,0.5);">{room.name}</span>
-                    </div>
-                {/each}
-            </div>
         {/if}
     </main>
+
+    <!-- Recurse Center Attribution -->
+    <footer class="recurse-footer mt-8 mb-6 flex flex-col items-center">
+        <div class="flex items-center space-x-3">
+            <span class="text-sm text-black font-semibold">Built for the <a href="https://www.recurse.com" target="_blank" rel="noopener noreferrer" class="recurse-link">Recurse Center</a></span>
+        </div>
+    </footer>
 
     <!-- Booking Form Modal -->
     <div
@@ -986,30 +974,43 @@
                 </svg>
             </button>
             {#if bookingSuccess}
-                <div class="modal-success text-center py-6">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 mx-auto text-green-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                    <h3 class="text-xl font-medium text-white mb-2">Meeting scheduled</h3>
-                    <p class="text-gray-300">Your booking has been confirmed</p>
-                    <button on:click={closeBookingForm} class="mt-4 inline-flex justify-center px-4 py-2 text-sm font-medium text-blue-400 hover:text-blue-300">Close</button>
+                <div class="modal-header pt-8 mb-6">
+                    <h3>Meeting Scheduled</h3>
+                </div>
+                <div class="modal-success">
+                    <div class="flex flex-col items-center text-center py-6">
+                        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                        </div>
+                        <p class="text-gray-600 mb-6">Your booking has been confirmed</p>
+                    </div>
+                    <div class="modal-actions flex justify-center pt-6 border-t border-gray-200">
+                        <button on:click={closeBookingForm} class="btn-base btn-md btn-primary">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            Done
+                        </button>
+                    </div>
                 </div>
             {:else}
-                <div class="modal-header pt-8 mb-4">
-                    <h3 class="text-xl font-medium text-white text-center">Book a Room</h3>
+                <div class="modal-header pt-8 mb-6">
+                    <h3>Book a Room</h3>
                 </div>
                 <form on:submit|preventDefault={handleBookingSubmit} class="modal-form space-y-4">
-                    <div class="modal-date flex items-center gap-2 mb-4">
-                        <div class="text-gray-400">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div class="modal-date flex items-center gap-3 mb-6">
+                        <div class="text-gray-500">
+                            <svg xmlns="http://www.w3.org/2000/svg"  fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
                         </div>
-                        <div class="text-white font-medium">{selectedDate ? formatDate(selectedDate) : ""}</div>
+                        <div class="modal-date-value">{selectedDate ? formatDate(selectedDate) : ""}</div>
                     </div>
-                    <div class="modal-time mb-4">
-                        <label class="block text-gray-400 mb-2">Start Time</label>
-                        <select bind:value={selectedStartTime} class="w-full bg-gray-700 border-none rounded-md focus:ring-1 focus:ring-blue-500 p-2 text-white">
+                    <div class="modal-time mb-5">
+                        <label>Start Time</label>
+                        <select bind:value={selectedStartTime} class="modal-input">
                             {#each hours as hour}
                                 {#each [0, 15, 30, 45] as minute}
                                     <option value={`${hour}:${minute === 0 ? "00" : minute}`}>{formatTime(hour, minute)}</option>
@@ -1017,9 +1018,9 @@
                             {/each}
                         </select>
                     </div>
-                    <div class="modal-duration mb-4">
-                        <label class="block text-gray-400 mb-2">Duration</label>
-                        <select bind:value={selectedDuration} class="w-full bg-gray-700 border-none rounded-md focus:ring-1 focus:ring-blue-500 p-2 text-white">
+                    <div class="modal-duration mb-5">
+                        <label>Duration</label>
+                        <select bind:value={selectedDuration} class="modal-input">
                             <option value="15">15 minutes</option>
                             <option value="30">30 minutes</option>
                             <option value="45">45 minutes</option>
@@ -1028,8 +1029,8 @@
                             <option value="120">2 hours</option>
                         </select>
                     </div>
-                    <div class="modal-room mb-4">
-                        <label class="block text-gray-400 mb-2">Select Room</label>
+                    <div class="modal-room mb-6">
+                        <label>Select Room</label>
                         <div class="flex space-x-3">
                             {#each rooms as room}
                                 <button
@@ -1039,26 +1040,40 @@
                                     aria-pressed={selectedRoomId === room.id}
                                 >
                                     {room.name}
-                                    {#if selectedRoomId === room.id}
-                                        <svg class="inline ml-2 align-middle text-blue-300" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
-                                    {/if}
                                 </button>
                             {/each}
                         </div>
                     </div>
-                    <div class="modal-notes mb-4">
-                        <label class="block text-gray-400 mb-2">Notes (optional)</label>
-                        <textarea bind:value={bookingNotes} class="w-full bg-gray-700 border-none rounded-md p-2 text-white focus:ring-1 focus:ring-blue-500 resize-none" rows="2" placeholder="Add description"></textarea>
+                    <div class="modal-notes mb-6">
+                        <label>Notes (optional)</label>
+                        <textarea bind:value={bookingNotes} class="modal-input" rows="3" placeholder="Add description for your booking..."></textarea>
                     </div>
                     {#if bookingError}
-                        <div class="modal-error bg-red-900 border border-red-700 text-white px-4 py-3 rounded">
-                            <strong class="font-bold">Error:</strong>
-                            <span class="block sm:inline">{bookingError}</span>
+                        <div class="modal-error bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                            <strong class="font-semibold">Error:</strong>
+                            <span class="block sm:inline ml-1">{bookingError}</span>
                         </div>
                     {/if}
-                    <div class="modal-actions flex justify-end pt-4 border-t border-gray-700 space-x-3">
-                        <button type="button" on:click={closeBookingForm} class="px-4 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 rounded-md">Cancel</button>
-                        <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md shadow-sm" disabled={isSubmitting || !selectedRoomId}>{isSubmitting ? "Saving..." : "Book Room"}</button>
+                    <div class="modal-actions flex justify-end pt-6 border-t border-gray-200 space-x-3">
+                        <button type="button" on:click={closeBookingForm} class="btn-base btn-md btn-secondary">
+                            <svg xmlns="http://www.w3.org/2000/svg"  fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                            Cancel
+                        </button>
+                        <button type="submit" class="btn-base btn-md btn-primary" disabled={isSubmitting || !selectedRoomId}>
+                            {#if isSubmitting}
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                                </svg>
+                                Saving...
+                            {:else}
+                                <svg xmlns="http://www.w3.org/2000/svg"  fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                Book Room
+                            {/if}
+                        </button>
                     </div>
                 </form>
             {/if}
@@ -1078,54 +1093,66 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
             </button>
-            <div class="modal-header pt-8 mb-4">
-                <h3 class="text-xl font-medium text-white text-center">Booking Details</h3>
+            <div class="modal-header pt-8 mb-6">
+                <h3>Booking Details</h3>
             </div>
             {#if selectedBooking}
                 <div class="modal-details space-y-4">
                     <div class="modal-details-grid grid grid-cols-[auto,1fr] gap-4 items-center">
-                        <div class="text-gray-400">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <div class="modal-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg"  fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                             </svg>
                         </div>
-                        <div class="text-white">
+                        <div class="modal-value">
                             {#if selectedBooking}
                                 {rooms.find((r) => r.id === selectedBooking?.room_id)?.name || "Unknown Room"}
                             {:else}
                                 Unknown Room
                             {/if}
                         </div>
-                        <div class="text-gray-400">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <div class="modal-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg"  fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
                         </div>
-                        <div class="text-white">{formatDate(new Date(selectedBooking.start_time))}</div>
-                        <div class="text-gray-400">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <div class="modal-value">{formatDate(new Date(selectedBooking.start_time))}</div>
+                        <div class="modal-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg"  fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                         </div>
-                        <div class="text-white">{formatTimeFromDate(selectedBooking.start_time)} - {formatTimeFromDate(selectedBooking.end_time)}</div>
-                        <div class="text-gray-400">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <div class="modal-value">{formatTimeFromDate(selectedBooking.start_time)} - {formatTimeFromDate(selectedBooking.end_time)}</div>
+                        <div class="modal-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg"  fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                             </svg>
                         </div>
-                        <div class="text-white">{selectedBooking.user_name || "Unknown User"}</div>
+                        <div class="modal-value">{selectedBooking.user_name || "Unknown User"}</div>
                         {#if selectedBooking.notes}
-                            <div class="text-gray-400 self-start pt-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <div class="modal-icon self-start pt-2">
+                                <svg xmlns="http://www.w3.org/2000/svg"  fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                 </svg>
                             </div>
-                            <div class="text-white pb-2">{selectedBooking.notes}</div>
+                            <div class="modal-value pb-2">{selectedBooking.notes}</div>
                         {/if}
                     </div>
                     {#if $user && parseInt($user.id) === selectedBooking.user_id}
                         <div class="modal-delete pt-4 border-t border-gray-700">
-                            <button on:click={confirmDeleteBooking} class="w-full mt-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-md shadow-sm" disabled={isSubmitting}>{isSubmitting ? "Deleting..." : "Delete Booking"}</button>
+                            <button on:click={confirmDeleteBooking} class="btn-base btn-md btn-danger w-full" disabled={isDeletingBooking}>
+                                {#if isDeletingBooking}
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                                    </svg>
+                                    Deleting...
+                                {:else}
+                                    <svg xmlns="http://www.w3.org/2000/svg"  fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                    Delete Booking
+                                {/if}
+                            </button>
                         </div>
                     {/if}
                 </div>
@@ -1135,7 +1162,66 @@
 </div>
 
 <style>
-    /* Responsive adjustments for mobile */
+    /* ===== MODERN LIGHT THEME CALENDAR STYLES ===== */
+    
+    /* Base Variables for Consistency */
+    :root {
+        --primary-blue: #3b82f6;
+        --primary-blue-dark: #2563eb;
+        --primary-emerald: #059669;
+        --primary-emerald-dark: #047857;
+        --primary-purple: #7c3aed;
+        --primary-purple-dark: #6d28d9;
+        --sage-green: #588157;
+        --sage-green-dark: #4a6b49;
+        --soft-rose: #ffafcc;
+        --soft-rose-dark: #ff9cbf;
+        --background-light: #f8fafc;
+        --background-white: #ffffff;
+        --text-primary: #1f2937;
+        --text-secondary: #6b7280;
+        --text-muted: #9ca3af;
+        --border-light: #e5e7eb;
+        --border-medium: #d1d5db;
+        --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        --radius-sm: 0.5rem;
+        --radius-md: 0.75rem;
+        --radius-lg: 1rem;
+        --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        
+        /* Font System */
+        --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+        --font-size-xs: 0.75rem;    /* 12px */
+        --font-size-sm: 0.875rem;   /* 14px */
+        --font-size-base: 1rem;     /* 16px */
+        --font-size-lg: 1.125rem;   /* 18px */
+        --font-size-xl: 1.25rem;    /* 20px */
+        --font-size-2xl: 1.5rem;    /* 24px */
+        --font-size-3xl: 1.875rem;  /* 30px */
+        --font-size-4xl: 2.25rem;   /* 36px */
+        --font-weight-normal: 400;
+        --font-weight-medium: 500;
+        --font-weight-semibold: 600;
+        --font-weight-bold: 700;
+        --line-height-tight: 1.25;
+        --line-height-normal: 1.5;
+        --line-height-relaxed: 1.625;
+    }
+
+    /* Base Typography */
+    * {
+        font-family: var(--font-family);
+    }
+    
+    .calendar-app {
+        font-size: var(--font-size-base);
+        line-height: var(--line-height-normal);
+        font-weight: var(--font-weight-normal);
+    }
+
+    /* Mobile-First Responsive Design */
     @media (max-width: 700px) {
         .calendar-app,
         .calendar-main,
@@ -1147,85 +1233,77 @@
             padding: 0 !important;
         }
         .calendar-title {
-            font-size: 1.5rem !important;
-            padding: 0.25rem 0.5rem !important;
+            font-size: var(--font-size-3xl) !important;
+            padding: 0.75rem 1rem !important;
         }
         .calendar-section {
-            padding: 0.5rem !important;
+            padding: 0.75rem !important;
             height: 80vh !important;
         }
         .calendar-grid {
-            grid-template-columns: 40px repeat(7, 1fr) !important;
-            font-size: 0.85rem !important;
+            grid-template-columns: 45px repeat(7, 1fr) !important;
+            font-size: var(--font-size-sm) !important;
             height: 55vh !important;
         }
         .calendar-sidebar.time-column {
-            width: 40px !important;
-            min-width: 40px !important;
-            max-width: 40px !important;
+            width: 45px !important;
+            min-width: 45px !important;
+            max-width: 45px !important;
         }
         .calendar-day-header {
-            padding: 8px 0 4px 0 !important;
+            padding: 10px 0 6px 0 !important;
         }
         .calendar-day-number {
-            font-size: 1.1rem !important;
+            font-size: var(--font-size-xl) !important;
         }
         .calendar-legend-item.legend-button {
-            min-width: 70px !important;
-            font-size: 0.85rem !important;
-            padding: 4px 8px !important;
+            min-width: 85px !important;
+            font-size: var(--font-size-sm) !important;
+            padding: 6px 10px !important;
         }
         .legend-circle {
-            width: 14px !important;
-            height: 14px !important;
+            width: 16px !important;
+            height: 16px !important;
         }
         .booking-modal-content {
-            padding: 1.2rem 0.5rem 1rem 0.5rem !important;
-            max-width: 98vw !important;
+            padding: 1.5rem 1rem 1.25rem 1rem !important;
+            max-width: 95vw !important;
         }
         .modal-header h3 {
-            font-size: 1.05rem !important;
+            font-size: var(--font-size-2xl) !important;
         }
         .modal-details-grid {
-            padding: 0.5rem !important;
-            font-size: 0.95rem !important;
+            padding: 1rem !important;
+            font-size: var(--font-size-base) !important;
         }
         .modal-close-btn {
-            top: 8px !important;
-            right: 8px !important;
+            top: 12px !important;
+            right: 12px !important;
         }
     }
-    /* Modern, clean calendar grid layout */
+    /* ===== MAIN LAYOUT ===== */
     .calendar-app {
         width: 100vw;
         max-width: 100vw;
         min-height: 100vh;
         margin: 0;
         padding: 0;
-        background: #181c24;
+        background: var(--background-light);
         display: flex;
         flex-direction: column;
         align-items: center;
+        font-family: var(--font-family);
     }
     .calendar-header {
-        background: rgba(24, 28, 36, 0.98);
-        border-radius: 0.75rem;
-        box-shadow: 0 2px 12px 0 rgba(0,0,0,0.10);
-        border: 1px solid #23272f;
+        background: rgba(255, 255, 255, 0.95);
+                border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-lg);
+        border: 1px solid var(--border-light);
         max-width: 1100px;
         width: 100%;
-        margin-left: auto;
-        margin-right: auto;
-        position: static;
-        left: unset;
-        right: unset;
-        top: unset;
-        transform: none;
-        z-index: 100;
-        margin-top: 2.5rem;
-        margin-bottom: 1.5rem;
-        padding-top: 1.25rem;
-        padding-bottom: 1.25rem;
+        margin: 2rem auto 1.5rem;
+        padding: 1.5rem;
+        position: relative;
     }
     .calendar-main {
         width: 100%;
@@ -1234,33 +1312,34 @@
         display: flex;
         flex-direction: column;
         align-items: center;
+        padding: 0 1rem;
     }
     .calendar-section {
         width: 100%;
         max-width: 1100px;
         height: 70vh;
         margin: 0 auto;
-        padding: 1px;
+        padding: 1.5rem;
         box-sizing: border-box;
-        border-left: none;
-        border-right: none;
-        background: transparent;
+        background: var(--background-white);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-lg);
+        border: 1px solid var(--border-light);
+        display: flex;
+        flex-direction: column;
     }
     .calendar-grid {
         width: 100%;
-        max-width: 1100px;
         height: 60vh;
-        margin: 0 auto;
         display: grid;
-        grid-template-columns: 60px repeat(7, 1fr);
+        grid-template-columns: 70px repeat(7, 1fr);
         grid-auto-rows: auto;
-        border: 1px solid #23272f;
-        border-radius: 0.75rem;
+        border: 1px solid var(--border-light);
+        border-radius: var(--radius-md);
         overflow: auto;
-        background: linear-gradient(135deg, #181c24 0%, #23272f 100%);
+        background: var(--background-white);
         box-sizing: border-box;
-        border-left: none;
-        border-right: none;
+        flex: 1;
     }
 
     :global(body),
@@ -1271,115 +1350,271 @@
         margin: 0;
         padding: 0;
         overflow-x: hidden;
-        background: #181c24;
+        background: var(--background-light);
+        font-family: var(--font-family);
     }
 
-    .calendar-header {
-        background: rgba(24, 28, 36, 0.98);
-        border-radius: 0.75rem;
-        box-shadow: 0 2px 12px 0 rgba(0,0,0,0.10);
-        border: 1px solid #23272f;
-    }
-
-    .calendar-nav-today {
-        background: linear-gradient(90deg, #2563eb 60%, #1e40af 100%);
-        color: #fff;
-        font-weight: 600;
-        letter-spacing: 0.02em;
-        box-shadow: 0 1px 2px rgba(37,99,235,0.08);
-        transition: background 0.2s;
-    }
-    .calendar-nav-today:hover {
-        background: #1e40af;
-    }
-    .calendar-nav-prev, .calendar-nav-next {
-        background: #23272f;
-        color: #fff;
-        font-size: 1.25rem;
+    /* ===== BUTTON SYSTEM ===== */
+    .btn-base {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        font-family: var(--font-family);
+        font-weight: var(--font-weight-semibold);
+        border-radius: var(--radius-md);
+        cursor: pointer;
         border: none;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.08);
-        transition: background 0.2s;
+        text-decoration: none;
+        outline: none;
+        position: relative;
+        overflow: hidden;
     }
-    .calendar-nav-prev:hover, .calendar-nav-next:hover {
-        background: #374151;
+
+    .btn-base:focus {
+        outline: 2px solid transparent;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     }
+
+    .btn-base:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    .btn-base svg {
+        flex-shrink: 0;
+    }
+
+    /* Icon sizing consistency */
+    .btn-sm svg {
+        width: 1rem;
+        height: 1rem;
+    }
+
+    .btn-md svg {
+        width: 1rem;
+        height: 1rem;
+    }
+
+    .btn-lg svg {
+        width: 1.125rem;
+        height: 1.125rem;
+    }
+
+    .btn-nav-icon svg {
+        width: 1.25rem;
+        height: 1.25rem;
+    }
+
+    /* Loading spinner */
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    .animate-spin {
+        animation: spin 1s linear infinite;
+    }
+
+    /* Button Sizes */
+    .btn-sm {
+        padding: 0.5rem 1rem;
+        font-size: var(--font-size-sm);
+        min-height: 2rem;
+    }
+
+    .btn-md {
+        padding: 0.625rem 1.25rem;
+        font-size: var(--font-size-base);
+        min-height: 2.5rem;
+    }
+
+    .btn-lg {
+        padding: 0.75rem 1.5rem;
+        font-size: var(--font-size-base);
+        min-height: 3rem;
+    }
+
+    /* Button Variants */
+    .btn-primary {
+        background: linear-gradient(135deg, var(--primary-emerald) 0%, var(--primary-emerald-dark) 100%);
+        color: white;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+        background: linear-gradient(135deg, var(--primary-emerald-dark) 0%, #047857 100%);
+    }
+
+    .btn-secondary {
+        background: var(--background-white);
+        color: var(--text-secondary);
+        border: 1px solid var(--border-medium);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+        background: var(--background-light);
+        color: var(--text-primary);
+        border-color: var(--primary-blue);
+    }
+
+    .btn-danger {
+        background: #dc2626;
+        color: white;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .btn-danger:hover:not(:disabled) {
+        background: #b91c1c;
+    }
+
+    .btn-ghost {
+        background: transparent;
+        color: var(--text-secondary);
+        border: 1px solid transparent;
+    }
+
+    .btn-ghost:hover:not(:disabled) {
+        background: var(--background-light);
+        color: var(--text-primary);
+    }
+
+    .btn-nav-icon {
+        width: 2.5rem;
+        height: 2.5rem;
+        padding: 0;
+        background: var(--background-white);
+        color: var(--text-secondary);
+        border: 1px solid var(--border-medium);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .btn-nav-icon:hover:not(:disabled) {
+        background: #f9fafb;
+        color: var(--text-primary);
+    }
+
+    /* Specific Navigation Styles (keeping existing behavior) */
+    .calendar-nav-today {
+        background: white !important;
+        color: var(--primary-emerald) !important;
+        border: 2px solid var(--primary-emerald-dark) !important;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .calendar-nav-today:hover:not(:disabled) {
+        background: var(--primary-emerald) !important;
+        color: white !important;
+    }
+
+    .calendar-signout {
+        background: linear-gradient(135deg, var(--primary-purple) 0%, var(--primary-purple-dark) 100%) !important;
+        color: white !important;
+        border: none !important;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .calendar-signout:hover:not(:disabled) {
+        background: linear-gradient(135deg, var(--primary-purple-dark) 0%, #5b21b6 100%) !important;
+    }
+    /* ===== LEGEND STYLING ===== */
     .calendar-legend-item {
-        background: linear-gradient(90deg, #23272f 60%, #181c24 100%);
-        border-radius: 6px;
-        border: 1px solid #374151;
-        padding: 4px 16px;
-        min-width: 100px;
+        background: var(--background-white);
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border-light);
+        padding: 8px 18px;
+        min-width: 120px;
         text-align: center;
-        font-size: 1rem;
-        font-weight: 500;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.10);
-        margin-right: 0.5rem;
+        font-size: var(--font-size-base);
+        font-weight: var(--font-weight-medium);
+        box-shadow: var(--shadow-sm);
+        margin-right: 0.75rem;
+        transition: var(--transition);
+    }
+    .calendar-legend-item:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+        border-color: var(--primary-blue);
     }
     .calendar-signout {
-        background: linear-gradient(90deg, #2563eb 60%, #1e40af 100%) !important;
-        font-weight: 600;
-        letter-spacing: 0.02em;
-        box-shadow: 0 1px 2px rgba(37,99,235,0.08);
-        transition: background 0.2s;
+        background: linear-gradient(135deg, var(--primary-purple) 0%, var(--primary-purple-dark) 100%) !important;
+        font-weight: var(--font-weight-semibold);
+        letter-spacing: 0.025em;
+        box-shadow: var(--shadow-sm);
+        transition: var(--transition);
+        border: none;
     }
     .calendar-signout:hover {
-        background: #1e40af !important;
+        transform: translateY(-1px) !important;
+        box-shadow: var(--shadow-md) !important;
+        background: linear-gradient(135deg, var(--primary-purple-dark) 0%, #5b21b6 100%) !important;
     }
+    /* ===== TYPOGRAPHY ===== */
     .calendar-title {
-        color: #fff;
-        font-weight: 700;
-        letter-spacing: 0.01em;
-        margin-bottom: 0.5rem;
-        margin-top: 0.5rem;
-        font-size: 2.1rem;
+        color: var(--text-primary);
+        font-weight: var(--font-weight-bold);
+        letter-spacing: 0.025em;
+        margin-bottom: 1rem;
+        margin-top: 1rem;
+        font-size: 2.5rem;
         text-align: center;
+        line-height: 1.2;
     }
-    .calendar-loading .border-indigo-500 {
-        border-color: #6366f1 #23272f #23272f #23272f;
+    .calendar-loading .border-blue-500 {
+        border-color: var(--primary-blue) var(--border-light) var(--border-light) var(--border-light);
     }
     .calendar-error, .calendar-no-rooms {
-        border-radius: 0.5rem;
-        font-size: 1rem;
-        box-shadow: 0 2px 8px 0 rgba(0,0,0,0.10);
+        border-radius: var(--radius-md);
+        font-size: var(--font-size-base);
+        box-shadow: var(--shadow-md);
     }
     .calendar-error strong, .calendar-no-rooms strong {
-        font-weight: 700;
+        font-weight: var(--font-weight-semibold);
     }
     .calendar-month-header {
-        margin-bottom: 1.5rem;
-        margin-top: 0.5rem;
+        margin-bottom: 2rem;
+        margin-top: 1rem;
         display: flex;
         align-items: center;
         gap: 1.5rem;
         justify-content: space-between;
-        padding-left: 0.5rem;
-        padding-right: 0.5rem;
+        padding: 0 1rem;
+        flex-wrap: wrap;
+    }
+
+    .calendar-nav {
+        display: flex !important;
+        align-items: center !important;
+        gap: 0.75rem !important;
+        flex-shrink: 0;
+        flex-wrap: nowrap !important;
     }
     .calendar-month {
-        color: #e0e7ef;
-        font-size: 1.25rem;
-        font-weight: 600;
-        letter-spacing: 0.01em;
+        color: var(--text-primary);
+        font-size: var(--font-size-2xl);
+        font-weight: var(--font-weight-semibold);
+        letter-spacing: 0.025em;
     }
+    /* ===== CALENDAR GRID ===== */
     .calendar-corner {
         grid-column: 1;
         grid-row: 1;
-        background: #23272f !important;
-        border-bottom: 1px solid #374151;
-        border-right: 1px solid #374151;
-        border-radius: 0.75rem 0 0 0;
+        background: #f8fafc !important;
+        border-bottom: 1px solid var(--border-light);
+        border-right: 1px solid var(--border-light);
+        border-radius: var(--radius-md) 0 0 0;
         position: sticky;
         top: 0;
         z-index: 21;
     }
     .calendar-day-header {
         grid-row: 1;
-        padding: 12px 0 8px 0;
+        padding: 16px 0 12px 0;
         text-align: center;
-        background: #23272f !important;
-        border-bottom: 1px solid #374151;
-        border-right: 1px solid #374151;
-        border-radius: 0 0 0 0;
+        background: #f8fafc !important;
+        border-bottom: 1px solid var(--border-light);
+        border-right: 1px solid var(--border-light);
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -1389,176 +1624,184 @@
         z-index: 20;
     }
     .calendar-day-name {
-        font-size: 1rem;
-        color: #a0aec0;
-        font-weight: 600;
-        letter-spacing: 0.01em;
+        font-size: var(--font-size-sm);
+        color: var(--text-secondary);
+        font-weight: var(--font-weight-medium);
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
     }
     .calendar-day-number {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #fff;
-        margin-top: 2px;
+        font-size: var(--font-size-2xl);
+        font-weight: var(--font-weight-bold);
+        color: var(--text-primary);
+        margin-top: 4px;
     }
     .today {
-        background: linear-gradient(90deg, #2563eb22 0%, #23272f 100%);
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, #f8fafc 100%) !important;
+        border-bottom: 2px solid var(--primary-blue) !important;
+    }
+    .today .calendar-day-number {
+        color: var(--primary-blue);
+        font-weight: var(--font-weight-bold);
     }
     .weekend {
-        background: #23272f;
+        background: #f1f5f9 !important;
     }
     .calendar-sidebar.time-column {
         grid-column: 1;
         grid-row: 2 / span 96;
         display: grid;
         grid-template-rows: repeat(96, 15px);
-        background: #181c24;
-        border-right: 1px solid #23272f;
-        width: 60px;
-        min-width: 60px;
-        max-width: 60px;
+        background: #f8fafc;
+        border-right: 2px solid var(--border-medium);
+        width: 70px;
+        min-width: 70px;
+        max-width: 70px;
         overflow: hidden;
-        /* Make sticky on the left */
         position: sticky;
         left: 0;
-        top: 48px; /* Height of the header row, adjust if needed */
-        z-index: 19; /* Just below the header (20/21) */
-        background: #181c24;
+        top: 56px;
+        z-index: 19;
     }
     .calendar-time-label {
         display: flex;
         align-items: center;
         justify-content: flex-end;
-        padding-right: 8px;
+        padding-right: 10px;
         height: 15px !important;
         min-height: 15px !important;
         max-height: 15px !important;
         box-sizing: border-box !important;
-        border-top: 1px solid #23272f;
-        font-size: 0.8rem;
-        color: #a0aec0;
+        border-top: 1px solid var(--border-light);
+        font-size: var(--font-size-xs);
+        color: var(--text-muted);
         white-space: nowrap;
         line-height: 15px;
         background: transparent;
+        font-weight: var(--font-weight-medium);
     }
     .hour-label {
-        border-top: 1px solid #374151;
-        font-weight: 600;
-        color: #e0e7ef;
+        border-top: 2px solid var(--border-medium);
+        font-weight: var(--font-weight-semibold);
+        color: var(--text-secondary);
         background: transparent;
     }
     .minute-label {
-        border-top: 1px solid #23272f;
-        color: #a0aec0;
+        border-top: 1px solid rgba(229, 231, 235, 0.8);
+        color: var(--text-muted);
         background: transparent;
+        opacity: 0.7;
     }
     .calendar-day.day-column {
         display: grid;
         grid-template-rows: repeat(96, 15px);
-        border-right: 1px solid #23272f;
+        border-right: 1px solid var(--border-medium);
         min-width: 0;
-        background: transparent;
+        background: var(--background-white);
     }
     .time-cell {
         position: relative;
-        border-bottom: none;
+        border-bottom: 1px solid rgba(229, 231, 235, 0.5);
         min-height: 15px;
         height: 15px;
         background: transparent;
-        transition: background 0.2s;
         cursor: pointer;
-        border-radius: 0.25rem;
+        border-radius: 0;
     }
     .hour-start {
-        border-top: 1px solid #374151;
+        border-top: 2px solid var(--border-medium) !important;
+        border-bottom: 1px solid var(--border-light) !important;
     }
     .time-cell:hover {
-        background: #2563eb22;
+        background: rgba(59, 130, 246, 0.08);
+        border-radius: var(--radius-sm);
     }
     .today-column .time-cell {
-        background: #2563eb11;
+        background: rgba(59, 130, 246, 0.03);
+    }
+    .today-column .time-cell:hover {
+        background: rgba(59, 130, 246, 0.12);
     }
     .weekend-column .time-cell {
-        background: #23272f;
+        background: rgba(241, 245, 249, 0.5);
     }
+    .weekend-column .time-cell:hover {
+        background: rgba(203, 213, 225, 0.3);
+    }
+    /* ===== BOOKING DISPLAY ===== */
     .booking-display {
         position: absolute;
-        border-radius: 0.5rem;
-        padding: 6px 10px;
-        font-size: 0.92rem;
-        color: #fff;
+        border-radius: var(--radius-md);
+        padding: 8px 12px;
+        font-size: var(--font-size-sm);
+        color: white;
         z-index: 10;
         overflow: hidden;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+        box-shadow: var(--shadow-md);
         display: flex;
         flex-direction: column;
-        background: linear-gradient(90deg, #2563eb 60%, #1e40af 100%);
-        text-shadow: 0px 1px 2px rgba(0,0,0,0.25);
-        border: 1px solid rgba(255,255,255,0.10);
+        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%);
+        border: 1px solid rgba(255,255,255,0.2);
         box-sizing: border-box;
-        transition: box-shadow 0.2s, background 0.2s;
         min-height: 15px;
     }
-    .booking-display:hover {
-        box-shadow: 0 4px 16px rgba(37,99,235,0.18);
-        background: linear-gradient(90deg, #1e40af 60%, #2563eb 100%);
-    }
     .booking-title {
-        font-weight: 600;
+        font-family: var(--font-family);
+        font-weight: var(--font-weight-semibold);
+        font-size: var(--font-size-sm);
+        line-height: var(--line-height-tight);
+        color: white;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        font-size: 1rem;
-        line-height: 1.1;
         width: 100%;
+        margin-bottom: 2px;
     }
     .booking-user {
-        font-size: 0.85rem;
-        opacity: 0.85;
-        font-style: italic;
-        color: #dbeafe;
+        font-family: var(--font-family);
+        font-size: var(--font-size-xs);
+        font-weight: var(--font-weight-normal);
+        line-height: var(--line-height-tight);
+        color: rgba(255, 255, 255, 0.9);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
         width: 100%;
-        line-height: 1.1;
+        font-weight: var(--font-weight-medium);
     }
     .drag-selection {
         position: absolute;
-        left: 2px;
-        right: 2px;
-        background: rgba(37,99,235,0.18);
-        border: 2px dashed #2563eb;
-        border-radius: 0.5rem;
+        left: 3px;
+        right: 3px;
+        background: rgba(59, 130, 246, 0.15);
+        border: 2px dashed var(--primary-blue);
+        border-radius: var(--radius-md);
         z-index: 5;
         pointer-events: none;
-        animation: pulse 1.5s infinite;
-    }
-    @keyframes pulse {
-        0% { opacity: 0.5; }
-        50% { opacity: 0.8; }
-        100% { opacity: 0.5; }
-    }
-    /* Modal styles - modern, clean, dark */
+        opacity: 0.7;
+            }
+    /* ===== MODAL STYLES ===== */
     .booking-modal-overlay {
         position: fixed;
         top: 0; left: 0; right: 0; bottom: 0;
-        background: rgba(24, 28, 36, 0.85);
+        background: rgba(0, 0, 0, 0.4);
         display: flex;
         align-items: center;
         justify-content: center;
         z-index: 9999;
     }
     .booking-modal-content {
-        background: linear-gradient(135deg, #23272f 0%, #181c24 100%);
-        border-radius: 1rem;
-        box-shadow: 0 8px 32px 0 rgba(0,0,0,0.25);
-        padding: 2.5rem 2rem 2rem 2rem;
+        background: var(--background-white);
+        border-radius: var(--radius-lg);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        padding: 2rem 2.5rem 2rem 2.5rem;
         width: 100%;
-        max-width: 28rem;
+        max-width: 32rem;
         max-height: calc(100vh - 4rem);
         overflow-y: auto;
-        color: #fff;
+        color: var(--text-primary);
         position: relative;
+        border: 1px solid var(--border-light);
     }
     .booking-modal-content svg {
         width: 20px;
@@ -1579,202 +1822,335 @@
     .booking-modal-content input,
     .booking-modal-content select,
     .booking-modal-content textarea {
-        font-size: 1rem;
-        padding: 0.5rem;
-        background: #23272f;
-        color: #fff;
-        border: 1px solid #374151;
-        border-radius: 0.5rem;
+        font-size: var(--font-size-base);
+        padding: 0.75rem;
+        background: var(--background-white);
+        color: var(--text-primary);
+        border: 2px solid var(--border-light);
+        border-radius: var(--radius-md);
         margin-bottom: 0.5rem;
-        transition: border 0.2s, background 0.2s;
+        font-weight: var(--font-weight-medium);
     }
     .booking-modal-content input:focus,
     .booking-modal-content select:focus,
     .booking-modal-content textarea:focus {
-        border: 1.5px solid #2563eb;
-        background: #181c24;
+        border: 2px solid var(--primary-blue);
+        background: #fafbfb;
         outline: none;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     }
     .booking-modal-content button {
-        font-size: 1rem;
-        font-weight: 600;
-        border-radius: 0.5rem;
-        transition: background 0.2s, color 0.2s;
+        font-size: var(--font-size-base);
+        font-weight: var(--font-weight-semibold);
+        border-radius: var(--radius-md);
+        border: none;
     }
     .modal-close-btn {
         position: absolute;
-        top: 18px;
-        right: 18px;
+        top: 20px;
+        right: 20px;
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #a0aec0;
+        color: var(--text-muted);
         background: transparent;
         border: none;
         cursor: pointer;
-        padding: 6px;
-        border-radius: 0.5rem;
-        transition: color 0.2s, background 0.2s;
+        padding: 8px;
+        border-radius: var(--radius-md);
     }
     .modal-close-btn:hover {
-        color: #fff;
-        background: #23272f;
+        color: var(--text-primary);
+        background: var(--background-light);
+    }
+    .modal-header {
+        padding: 1.5rem 1.5rem 0 1.5rem;
+        margin-bottom: 1rem;
+        border-bottom: 1px solid var(--border-light);
+        padding-bottom: 0.75rem;
     }
     .modal-header h3 {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: #fff;
-        margin-bottom: 0.5rem;
+        font-size: var(--font-size-2xl);
+        font-weight: var(--font-weight-bold);
+        color: var(--text-primary);
+        margin: 0;
+        letter-spacing: 0.025em;
+        text-align: center;
+    }
+    .modal-form {
+        padding: 0 1.5rem 1.5rem 1.5rem;
+        font-family: var(--font-family);
+    }
+    .modal-form > div {
+        margin-bottom: 1rem;
     }
     .modal-form label {
-        font-size: 0.95rem;
-        color: #a0aec0;
-        font-weight: 500;
-        margin-bottom: 0.25rem;
+        display: block;
+        font-size: var(--font-size-base);
+        color: var(--text-secondary);
+        font-weight: var(--font-weight-semibold);
+        margin-bottom: 0.5rem;
+        letter-spacing: 0.025em;
+    }
+    .modal-input {
+        width: 100%;
+        font-family: var(--font-family);
+        font-size: var(--font-size-base);
+        line-height: var(--line-height-normal);
+        padding: 0.75rem;
+        background: white;
+        border: 1px solid var(--border-medium);
+        border-radius: var(--radius-md);
+        color: var(--text-primary);
+    }
+    .modal-input:focus {
+        outline: none;
+        border-color: var(--primary-emerald);
+        box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+    }
+    .modal-date-value {
+        font-family: var(--font-family);
+        font-size: var(--font-size-base);
+        font-weight: var(--font-weight-medium);
+        color: var(--text-primary);
+        line-height: var(--line-height-normal);
+    }
+    .modal-form input, .modal-form select, .modal-form textarea {
+        font-family: var(--font-family);
+        font-size: var(--font-size-base);
+        line-height: var(--line-height-normal);
+    }
+    .modal-form .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.75rem;
+        padding-top: 1rem;
+        margin-top: 1rem;
+        border-top: 1px solid var(--border-light);
+        margin-left: -1.5rem;
+        margin-right: -1.5rem;
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
     }
     .modal-form .modal-actions button {
-        font-size: 1rem;
-        font-weight: 600;
-        border-radius: 0.5rem;
-        padding: 0.5rem 1.25rem;
+        font-size: var(--font-size-base);
+        font-weight: var(--font-weight-semibold);
+        border-radius: var(--radius-md);
+        padding: 0.75rem 1.5rem;
+        border: none;
+        cursor: pointer;
+        transition: var(--transition);
+        min-width: 100px;
     }
     .modal-form .modal-actions button:last-child {
-        background: linear-gradient(90deg, #2563eb 60%, #1e40af 100%);
-        color: #fff;
-        box-shadow: 0 1px 2px rgba(37,99,235,0.08);
+        background: linear-gradient(135deg, var(--primary-emerald) 0%, var(--primary-emerald-dark) 100%);
+        color: white;
+        box-shadow: var(--shadow-sm);
     }
     .modal-form .modal-actions button:last-child:hover {
-        background: #1e40af;
+        background: var(--primary-emerald-dark);
+        box-shadow: var(--shadow-md);
+        transform: translateY(-1px);
     }
     .modal-form .modal-actions button:first-child {
-        background: #23272f;
-        color: #a0aec0;
+        background: var(--background-light);
+        border: 1px solid var(--border-medium);
+        color: var(--text-secondary);
     }
     .modal-form .modal-actions button:first-child:hover {
-        background: #374151;
-        color: #fff;
+        background: var(--border-medium);
+        color: var(--text-primary);
     }
-    .modal-success h3 {
-        color: #22d3ee;
-        font-weight: 700;
-        font-size: 1.25rem;
+    .modal-success {
+        padding: 0 2rem 2rem 2rem;
+        font-family: var(--font-family);
     }
     .modal-success p {
-        color: #a0aec0;
-        font-size: 1rem;
+        color: var(--text-secondary);
+        font-size: var(--font-size-base);
+        font-family: var(--font-family);
+        line-height: var(--line-height-normal);
     }
     .modal-error {
-        background: #b91c1c;
-        border: 1px solid #991b1b;
-        color: #fff;
-        border-radius: 0.5rem;
-        font-size: 1rem;
-        margin-bottom: 0.5rem;
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        color: #dc2626;
+        border-radius: var(--radius-md);
+        font-size: var(--font-size-base);
+        font-family: var(--font-family);
+        margin-bottom: 1rem;
+        padding: 1rem;
+        line-height: var(--line-height-normal);
     }
     .modal-details-grid {
-        background: #23272f;
-        border-radius: 0.5rem;
-        padding: 1rem;
-        box-shadow: 0 1px 4px rgba(0,0,0,0.10);
+        background: var(--background-white);
+        border: 1px solid var(--border-light);
+        border-radius: var(--radius-md);
+        padding: 1.5rem;
+        margin: 1rem 0;
+        box-shadow: var(--shadow-sm);
+        font-size: var(--font-size-base);
+        line-height: var(--line-height-relaxed);
     }
-    .modal-details-grid .text-white {
-        color: #fff;
-        font-weight: 500;
+    .modal-icon {
+        color: var(--text-secondary);
+        font-family: var(--font-family);
     }
-    .modal-details-grid .text-gray-400 {
-        color: #a0aec0;
+    .modal-value {
+        color: var(--text-primary);
+        font-family: var(--font-family);
+        font-weight: var(--font-weight-medium);
+        font-size: var(--font-size-base);
+        line-height: var(--line-height-normal);
+    }
+    .modal-details {
+        padding: 0 2rem;
+        font-family: var(--font-family);
+    }
+    .modal-delete {
+        margin: 1.5rem 2rem 2rem 2rem;
+        padding: 1.5rem 0 0 0;
+        border-top: 1px solid var(--border-light);
     }
     .modal-delete button {
-        background: #b91c1c;
-        color: #fff;
-        font-weight: 700;
-        border-radius: 0.5rem;
-        transition: background 0.2s;
+        background: #dc2626;
+        color: white;
+        font-weight: var(--font-weight-bold);
+        border-radius: var(--radius-md);
+        transition: var(--transition);
+        font-size: var(--font-size-base);
+        font-family: var(--font-family);
+        border: none;
+        cursor: pointer;
+        padding: 0.75rem 1.5rem;
+        width: 100%;
     }
     .modal-delete button:hover {
-        background: #991b1b;
+        background: #b91c1c;
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
     }
-    /* Room-specific color classes for legend, booking, and selection */
+    /* ===== ROOM-SPECIFIC COLORS ===== */
     .room-green {
-        color: #fff !important;
-        background: linear-gradient(90deg, #16a34a 60%, #15803d 100%) !important;
+        color: white !important;
+        background: var(--sage-green) !important;
+        box-shadow: 0 4px 12px rgba(132, 204, 22, 0.3);
     }
     .room-lovelace {
-        background: linear-gradient(90deg, #ec4899 60%, #f472b6 100%) !important;
-        color: #fff !important;
+        background: var(--soft-rose) !important;
+        color: white !important;
+        box-shadow: 0 4px 12px rgba(244, 114, 182, 0.3);
     }
     .room-green-text {
-        color: #22c55e !important;
+        color: var(--sage-green-dark) !important;
     }
     .room-lovelace-text {
-        color: #ec4899 !important;
+        color: var(--soft-rose-dark) !important;
     }
     .room-green-border {
-        border-color: #22c55e !important;
+        border-color: var(--sage-green) !important;
     }
     .room-lovelace-border {
-        border-color: #f9a8d4 !important;
+        border-color: var(--soft-rose) !important;
     }
     .room-selected {
-        border: 2.5px solid #60a5fa !important;
-        box-shadow: 0 0 0 3px #2563eb44;
-        background: linear-gradient(90deg, #2563eb 60%, #1e40af 100%) !important;
-        color: #fff !important;
-        position: relative;
-        z-index: 1;
+        border: 2px solid var(--primary-emerald) !important;
+        box-shadow: var(--shadow-md);
+        transform: scale(1.02);
+        opacity: 1 !important;
     }
     .room-selected svg {
-        color: #60a5fa;
+        color: var(--primary-emerald);
     }
     .room-unselected {
-        opacity: 0.85;
-        filter: grayscale(0.15);
-        border: 2px solid transparent;
-        background: inherit;
-        transition: opacity 0.2s, filter 0.2s, border 0.2s;
+        opacity: 0.8;
+        border: 2px solid var(--border-medium);
+        background: var(--background-white);
+        color: var(--text-primary);
     }
     .room-unselected:hover {
         opacity: 1;
-        filter: none;
-        border: 2px solid #374151;
+        border: 2px solid var(--primary-blue);
+        box-shadow: var(--shadow-md);
     }
     .calendar-legend-item.legend-button {
         display: flex;
         align-items: center;
         justify-content: flex-start;
-        border-radius: 0.75rem;
-        border: 1.5px solid #374151;
-        background: transparent;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.10);
-        padding: 6px 18px;
-        min-width: 110px;
-        font-size: 1rem;
-        font-weight: 500;
-        margin-right: 0.5rem;
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border-light);
+        background: rgba(255, 255, 255, 0.8);
+                box-shadow: var(--shadow-sm);
+        padding: 6px 12px;
+        min-width: auto;
+        font-size: var(--font-size-sm);
+        font-weight: var(--font-weight-medium);
         cursor: default;
-        transition: box-shadow 0.2s, border 0.2s;
-        gap: 0.75rem;
-    }
-    .calendar-legend-item.legend-button:hover {
-        box-shadow: 0 2px 8px rgba(37,99,235,0.10);
-        border: 1.5px solid #2563eb;
+        transition: var(--transition);
+        gap: 0.5rem;
+        color: var(--text-primary);
     }
     .legend-circle {
         display: inline-block;
-        width: 18px;
-        height: 18px;
+        width: 12px;
+        height: 12px;
         border-radius: 50%;
-        margin-right: 0.5rem;
-        border: 2.5px solid #23272f;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.10);
-        background: #4f46e5; /* fallback default */
+        margin-right: 0;
+        border: 1px solid white;
+        box-shadow: var(--shadow-sm);
+        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%);
+        flex-shrink: 0;
     }
     .circle-green {
-        background: linear-gradient(90deg, #16a34a 60%, #15803d 100%);
-        border-color: #22c55e;
+        background: var(--sage-green);
+        border-color: white;
+        box-shadow: 0 2px 4px rgba(101, 163, 13, 0.3);
     }
     .circle-lovelace {
-        background: linear-gradient(90deg, #ec4899 60%, #f472b6 100%);
-        border-color: #f9a8d4;
+        background: var(--soft-rose);
+        border-color: white;
+        box-shadow: 0 2px 4px rgba(236, 72, 153, 0.3);
+    }
+    
+    /* ===== FOOTER STYLES ===== */
+    .recurse-footer {
+        margin-top: 3rem;
+        margin-bottom: 2rem;
+    }
+    .recurse-footer span {
+        color: #000000 !important;
+    }
+    .recurse-link {
+        color: #059669 !important;
+        text-decoration: underline;
+        text-decoration-color: #059669;
+        transition: all 0.2s ease;
+    }
+    .recurse-link:hover {
+        color: #047857 !important;
+        text-decoration-color: #047857;
+    }
+    .recurse-logo {
+    }
+    
+    /* ===== FINAL TOUCHES ===== */
+    * {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+    
+    .calendar-section::-webkit-scrollbar {
+        width: 8px;
+    }
+    .calendar-section::-webkit-scrollbar-track {
+        background: var(--background-light);
+        border-radius: 4px;
+    }
+    .calendar-section::-webkit-scrollbar-thumb {
+        background: var(--border-medium);
+        border-radius: 4px;
+    }
+    .calendar-section::-webkit-scrollbar-thumb:hover {
+        background: var(--text-muted);
     }
 </style>

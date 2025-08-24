@@ -118,7 +118,7 @@ export async function testLogin(req, res) {
     // Set a cookie with the access token
     res.cookie('auth_token', user.access_token, {
       httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000, // 1 day
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       sameSite: 'strict'
     });
 
