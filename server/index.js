@@ -389,10 +389,11 @@ app.get('/api/rooms', authenticate, async (req, res) => {
  * @param {string} start_time_op - Comparison operator for start_time (>, <, >=, <=). Default: >=
  * @param {string} end_time - Filter by end time (ISO 8601 format, e.g., 2025-10-12T14:30:00Z)
  * @param {string} end_time_op - Comparison operator for end_time (>, <, >=, <=). Default: <=
+ * @param {number} limit - Maximum number of results to return
  */
 app.get('/api/bookings', authenticate, async (req, res) => {
   try {
-    const { user_id, room_id, start_time, end_time, start_time_op, end_time_op } = req.query;
+    const { user_id, room_id, start_time, end_time, start_time_op, end_time_op, limit } = req.query;
 
     // Allowed comparison operators
     const allowedOperators = ['>', '<', '>=', '<='];
@@ -403,6 +404,14 @@ app.get('/api/bookings', authenticate, async (req, res) => {
     }
     if (end_time_op && !allowedOperators.includes(end_time_op)) {
       return res.status(400).json({ error: `Invalid end_time_op. Must be one of: ${allowedOperators.join(', ')}` });
+    }
+
+    // Validate limit if provided
+    if (limit) {
+      const limitNum = parseInt(limit);
+      if (isNaN(limitNum) || limitNum < 0) {
+        return res.status(400).json({ error: 'Invalid limit. Must be a positive integer' });
+      }
     }
 
     // ISO 8601 format validation regex
@@ -451,6 +460,11 @@ app.get('/api/bookings', authenticate, async (req, res) => {
     }
 
     query += ` ORDER BY b.start_time`;
+
+    if (limit) {
+      params.push(parseInt(limit));
+      query += ` LIMIT $${params.length}`;
+    }
 
     const result = await db.query(query, params);
     res.json(result.rows);
