@@ -379,10 +379,40 @@ app.get('/api/rooms', authenticate, async (req, res) => {
   }
 });
 
-// API route to get bookings
+/**
+ * API route to get bookings, with optional filters
+ *
+ * Query parameters:
+ * @param {string} user_id - Filter bookings by user ID
+ * @param {string} room_id - Filter bookings by room ID
+ * @param {string} start_time - Filter by start time (ISO 8601 format, e.g., 2025-10-12T14:30:00Z)
+ * @param {string} start_time_op - Comparison operator for start_time (>, <, >=, <=). Default: >=
+ * @param {string} end_time - Filter by end time (ISO 8601 format, e.g., 2025-10-12T14:30:00Z)
+ * @param {string} end_time_op - Comparison operator for end_time (>, <, >=, <=). Default: <=
+ */
 app.get('/api/bookings', authenticate, async (req, res) => {
   try {
-    const { user_id } = req.query;
+    const { user_id, room_id, start_time, end_time, start_time_op, end_time_op } = req.query;
+
+    // Allowed comparison operators
+    const allowedOperators = ['>', '<', '>=', '<='];
+
+    // Validate operators if provided
+    if (start_time_op && !allowedOperators.includes(start_time_op)) {
+      return res.status(400).json({ error: `Invalid start_time_op. Must be one of: ${allowedOperators.join(', ')}` });
+    }
+    if (end_time_op && !allowedOperators.includes(end_time_op)) {
+      return res.status(400).json({ error: `Invalid end_time_op. Must be one of: ${allowedOperators.join(', ')}` });
+    }
+
+    // ISO 8601 format validation regex
+    const isoDateRegex = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d{3})?(Z|[+-]\d{2}:\d{2})?)?$/;
+    if (start_time && !isoDateRegex.test(start_time)) {
+      return res.status(400).json({ error: 'Invalid start_time format. Expected ISO 8601 format (e.g. 2025-10-12T14:30:00Z)' });
+    }
+    if (end_time && !isoDateRegex.test(end_time)) {
+      return res.status(400).json({ error: 'Invalid end_time format. Expected ISO 8601 format (e.g. 2025-10-12T14:30:00Z)' });
+    }
 
     let query = `
       SELECT b.*, r.name as room_name, u.email as user_email, u.name as user_name
@@ -392,10 +422,32 @@ app.get('/api/bookings', authenticate, async (req, res) => {
     `;
 
     const params = [];
+    const conditions = [];
 
     if (user_id) {
-      query += ` WHERE b.user_id = $1`;
       params.push(user_id);
+      conditions.push(`b.user_id = $${params.length}`);
+    }
+
+    if (room_id) {
+      params.push(room_id);
+      conditions.push(`b.room_id = $${params.length}`);
+    }
+
+    if (start_time) {
+      const operator = start_time_op || '>=';
+      params.push(start_time);
+      conditions.push(`b.start_time ${operator} $${params.length}`);
+    }
+
+    if (end_time) {
+      const operator = end_time_op || '<=';
+      params.push(end_time);
+      conditions.push(`b.end_time ${operator} $${params.length}`);
+    }
+
+    if (conditions.length > 0) {
+      query += ` WHERE ${conditions.join(' AND ')}`;
     }
 
     query += ` ORDER BY b.start_time`;
