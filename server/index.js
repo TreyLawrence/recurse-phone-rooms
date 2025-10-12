@@ -390,6 +390,13 @@ app.get('/api/rooms', authenticate, async (req, res) => {
  * @param {string} end_time - Filter by end time (ISO 8601 format, e.g., 2025-10-12T14:30:00Z)
  * @param {string} end_time_op - Comparison operator for end_time (>, <, >=, <=). Default: <=
  * @param {number} limit - Maximum number of results to return
+ * 
+ * Examples:
+ * - /api/bookings?user_id=1
+ * - /api/bookings?room_id=2
+ * - /api/bookings?start_time=2025-10-12T14:00:00Z&end_time=2025-10-15T14:00:00Z
+ * - /api/bookings?start_time=2025-10-12T14:00:00Z&start_time_op=>
+ * - /api/bookings?room_id=1&start_time=2025-10-12T14:00:00Z&start_time_op=>=&end_time=2025-10-15T14:00:00Z&end_time_op=<
  */
 app.get('/api/bookings', authenticate, async (req, res) => {
   try {
