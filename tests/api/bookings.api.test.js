@@ -158,6 +158,84 @@ test.describe('Booking API Tests', () => {
     }
   });
 
+  test('should get all bookings with filters', async ({ page }) => {
+    const aliceClient = await authRequest(USERS.ALICE.id);
+
+    const now = new Date();
+    const oneHour = 60 * 60 * 1000;
+
+    const startTime1 = new Date(now.getTime() + oneHour);
+    const endTime1 = new Date(startTime1.getTime() + oneHour);
+
+    const bookingData1 = {
+      room_id: testRoomId,
+      start_time: startTime1.toISOString(),
+      end_time: endTime1.toISOString(),
+    };
+
+    const startTime2 = new Date(now.getTime() + oneHour * 24);
+    const endTime2 = new Date(startTime2.getTime() + oneHour);
+
+    const bookingData2 = {
+      room_id: testRoomId,
+      start_time: startTime2.toISOString(),
+      end_time: endTime2.toISOString(),
+    };
+
+    const timeUpperBound = new Date(startTime1.getTime() - oneHour);
+    const timeLowerBound = new Date(endTime2.getTime() + oneHour);
+
+    try {
+      const response1 = await aliceClient.post(`/bookings`, bookingData1);
+
+      expect(response1.status).toBe(201);
+      expect(response1.data).toHaveProperty('id');
+      expect(response1.data).toHaveProperty('room_id', testRoomId);
+      expect(response1.data).toHaveProperty('start_time');
+      expect(response1.data).toHaveProperty('end_time');
+
+      // Save the bookingId for cleanup
+      testResources.bookings.alice.push(response1.data.id);
+      console.log(`Created booking ID ${response1.data.id} for test`);
+
+      const response2 = await aliceClient.post(`/bookings`, bookingData2);
+
+      expect(response2.status).toBe(201);
+      expect(response2.data).toHaveProperty('id');
+      expect(response2.data).toHaveProperty('room_id', testRoomId);
+      expect(response2.data).toHaveProperty('start_time');
+      expect(response2.data).toHaveProperty('end_time');
+
+      // Save the bookingId for cleanup
+      testResources.bookings.alice.push(response2.data.id);
+      console.log(`Created booking ID ${response2.data.id} for test`);
+
+      const bookings = await aliceClient.get(`/bookings`);
+      expect(bookings.data.length).toBeGreaterThanOrEqual(2);
+      expect(bookings.data[0]).toHaveProperty('id', response1.data.id);
+      expect(bookings.data[1]).toHaveProperty('id', response2.data.id);
+
+      const bookings_with_filters1 = await aliceClient.get(`/bookings?start_time=${startTime2.toISOString()}&end_time=${timeLowerBound.toISOString()}`);
+      expect(bookings_with_filters1.data.length).toBe(1);
+      expect(bookings_with_filters1.data[0]).toHaveProperty('id', response2.data.id);
+
+      const bookings_with_filters2 = await aliceClient.get(`/bookings?start_time=${timeUpperBound.toISOString()}&end_time=${endTime1.toISOString()}`);
+      expect(bookings_with_filters2.data.length).toBe(1);
+      expect(bookings_with_filters2.data[0]).toHaveProperty('id', response1.data.id);
+
+      const bookings_with_filters3 = await aliceClient.get(`/bookings?start_time=${endTime2.toISOString()}&start_time_op=<&end_time=${startTime2.toISOString()}&end_time_op=>`);
+      expect(bookings_with_filters3.data.length).toBe(1);
+      expect(bookings_with_filters3.data[0]).toHaveProperty('id', response2.data.id);
+
+      const bookings_with_filters4 = await aliceClient.get(`/bookings?limit=1`);
+      expect(bookings_with_filters4.data.length).toBe(1);
+
+    } catch (error) {
+      console.error('Error creating booking:', error.response?.data || error.message);
+      throw error;
+    }
+  });
+
   // We'll make each test independent and not rely on other tests creating bookings
 
   test('should create a booking successfully', async ({ page }) => {
