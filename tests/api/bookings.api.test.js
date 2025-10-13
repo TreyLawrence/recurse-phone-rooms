@@ -182,8 +182,8 @@ test.describe('Booking API Tests', () => {
       end_time: endTime2.toISOString(),
     };
 
-    const timeUpperBound = new Date(startTime1.getTime() - oneHour);
-    const timeLowerBound = new Date(endTime2.getTime() + oneHour);
+    const timeStartBound = new Date(startTime1.getTime() - oneHour);
+    const timeEndBound = new Date(endTime2.getTime() + oneHour);
 
     try {
       const response1 = await aliceClient.post(`/bookings`, bookingData1);
@@ -215,11 +215,11 @@ test.describe('Booking API Tests', () => {
       expect(bookings.data[0]).toHaveProperty('id', response1.data.id);
       expect(bookings.data[1]).toHaveProperty('id', response2.data.id);
 
-      const bookings_with_filters1 = await aliceClient.get(`/bookings?start_time=${startTime2.toISOString()}&end_time=${timeLowerBound.toISOString()}`);
+      const bookings_with_filters1 = await aliceClient.get(`/bookings?start_time=${startTime2.toISOString()}&end_time=${timeEndBound.toISOString()}`);
       expect(bookings_with_filters1.data.length).toBe(1);
       expect(bookings_with_filters1.data[0]).toHaveProperty('id', response2.data.id);
 
-      const bookings_with_filters2 = await aliceClient.get(`/bookings?start_time=${timeUpperBound.toISOString()}&end_time=${endTime1.toISOString()}`);
+      const bookings_with_filters2 = await aliceClient.get(`/bookings?start_time=${timeStartBound.toISOString()}&end_time=${endTime1.toISOString()}`);
       expect(bookings_with_filters2.data.length).toBe(1);
       expect(bookings_with_filters2.data[0]).toHaveProperty('id', response1.data.id);
 
