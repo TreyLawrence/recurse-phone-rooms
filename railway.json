@@ -6,7 +6,7 @@
     },
     "deploy": {
         "numReplicas": 1,
-        "startCommand": "node server/index.js",
+        "startCommand": "npm run migrate && node server/index.js",
         "healthcheckPath": "/api/health",
         "healthcheckTimeout": 300,
         "restartPolicyType": "ON_FAILURE",

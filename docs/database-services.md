@@ -89,6 +89,12 @@ The application is configured to automatically use the appropriate service based
 
 If connecting to the service fails, the application will fall back to using the direct connection parameters from environment variables.
 
+### Migrations in local vs production
+
+- Local development: run migrations explicitly with `npm run migrate` before starting the app.
+- Production (Railway): migrations are executed on start (see `railway.json` `startCommand`). New `.sql` files in `migrations/` are picked up automatically on deploy.
+- Author new migrations as numbered `.sql` files and prefer idempotent SQL (`IF NOT EXISTS`, `ON CONFLICT DO NOTHING`).
+
 ## Troubleshooting
 
 If you encounter connection issues:
