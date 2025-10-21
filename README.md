@@ -86,6 +86,24 @@ For more information about the PostgreSQL service configuration, see [docs/datab
 npm run migrate
 ```
 
+### Migrations workflow (contributors)
+
+- Add schema changes as new, numbered `.sql` files in `migrations/` (e.g., `003_add_table_x.sql`).
+- Keep migrations idempotent using `IF NOT EXISTS`/`ON CONFLICT DO NOTHING` so re-runs are safe.
+- Apply locally with:
+
+```bash
+npm run migrate
+```
+
+- Start the app after migrating:
+
+```bash
+npm run dev:all
+```
+
+- Tests/CI run against a fresh DB with migrations applied.
+
 7. Start the development server:
 
 ```bash
@@ -164,6 +182,21 @@ End-to-end tests use Playwright to simulate user interactions in a browser envir
 3. Set environment variables for production
 4. Build the application: `npm run build`
 5. Deploy the built files from the `dist` directory to your hosting service
+
+### Railway deploys and migrations
+
+- Production runs on Railway. The service is configured to run migrations on start via `railway.json`:
+
+```
+"startCommand": "npm run migrate && node server/index.js"
+```
+
+- On `railway up` (or after squash/merge to main if you deploy from main), Railway will:
+  - Build the app
+  - Execute all `.sql` files in `migrations/` in alphanumeric order
+  - Start the server
+
+- Local development does NOT auto-run migrations; contributors should run `npm run migrate` explicitly.
 
 ## API Keys
 
