@@ -54,14 +54,10 @@ async function setupDatabase() {
       const files = fs.readdirSync(migrationsDir);
       console.log('Files in migrations directory:', files);
 
-      // Find the migration files (either 001_init.sql or _001_init.sql)
-      let migrationFiles = [];
-      if (files.includes('001_init.sql')) {
-        migrationFiles.push('001_init.sql');
-      }
-      if (files.includes('_001_init.sql')) {
-        migrationFiles.push('_001_init.sql');
-      }
+      // Find the migration files (those that end with .sql)
+      let migrationFiles = files
+        .filter(file => file.endsWith('.sql'))
+        .sort();
 
       if (migrationFiles.length === 0) {
         throw new Error('Migration files not found in directory');

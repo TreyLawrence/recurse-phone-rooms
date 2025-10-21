@@ -31,17 +31,6 @@ CREATE TABLE IF NOT EXISTS bookings (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create api_keys table
-CREATE TABLE IF NOT EXISTS api_keys (
-  id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  key_hash TEXT NOT NULL UNIQUE,
-  key_prefix VARCHAR(8) NOT NULL,
-  name VARCHAR(255),
-  last_used_at TIMESTAMP WITH TIME ZONE,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-
 -- Add a trigger function to prevent overlapping bookings
 CREATE OR REPLACE FUNCTION check_booking_overlap()
 RETURNS TRIGGER AS $$
@@ -68,10 +57,6 @@ FOR EACH ROW EXECUTE FUNCTION check_booking_overlap();
 -- Create index for faster booking lookups
 CREATE INDEX IF NOT EXISTS bookings_room_time_idx ON bookings (room_id, start_time, end_time);
 CREATE INDEX IF NOT EXISTS bookings_user_idx ON bookings (user_id);
-
--- Create index for fast API key lookups
-CREATE INDEX IF NOT EXISTS api_keys_key_hash_idx ON api_keys (key_hash);
-CREATE INDEX IF NOT EXISTS api_keys_user_id_idx ON api_keys (user_id);
 
 -- Insert the two specific rooms we want
 INSERT INTO rooms (name, description, capacity)
