@@ -9,8 +9,6 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
-    # No conditional needed - branch protection ensures all pushes to main are from approved PRs
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -31,6 +29,8 @@ jobs:
         run: npm install -g @railway/cli
 
       - name: Deploy to Railway
-        run: railway up --ci --service recurse-bookings --environment production
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          railway up --ci --service recurse-bookings --environment production
+
