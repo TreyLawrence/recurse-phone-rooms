@@ -47,7 +47,7 @@ setup('authenticate as standard user', async ({ page }) => {
     } catch (e) {
         // If we can't find the calendar grid, take a screenshot for debugging
         await page.screenshot({ path: './tests/debug-auth-standard.png' });
-        throw new Error(`Failed to authenticate as standard user: ${e.message}`);
+        throw new Error(`Failed to authenticate as standard user: ${e instanceof Error ? e.message : String(e)}`);
     }
 
     // Save the authenticated state for future use in tests
@@ -79,7 +79,7 @@ setup('authenticate as other user', async ({ page }) => {
     } catch (e) {
         // If we can't find the calendar grid, take a screenshot for debugging
         await page.screenshot({ path: './tests/debug-auth-other.png' });
-        throw new Error(`Failed to authenticate as other user: ${e.message}`);
+        throw new Error(`Failed to authenticate as other user: ${e instanceof Error ? e.message : String(e)}`);
     }
 
     // Save the authenticated state for future use in tests

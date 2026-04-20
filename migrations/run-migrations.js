@@ -5,8 +5,10 @@ import pg from 'pg';
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
 
-// Load environment variables
-dotenv.config();
+// Load environment variables based on NODE_ENV
+const envFile = process.env.NODE_ENV === 'test' ? '.env.test' : '.env.local';
+dotenv.config({ path: path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', envFile) });
+dotenv.config(); // fallback to .env if the above didn't set everything
 
 const { Pool } = pg;
 

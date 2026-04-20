@@ -647,20 +647,21 @@ app.delete('/api/api-keys/:id', authenticate, async (req, res) => {
   }
 });
 
-// Serve static files from the frontend build directory
-const staticPath = path.join(__dirname, '..', 'dist');
-console.log(`Serving static files from: ${staticPath}`);
-app.use(express.static(staticPath));
-
 // Catch all API routes that haven't been matched and return 404
 app.all('/api/*', (req, res) => {
   res.status(404).json({ error: 'API endpoint not found' });
 });
 
-// Catch-all route to handle frontend routing - serve index.html for client-side routing
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'dist', 'index.html'));
-});
+// Serve the SvelteKit frontend — use the adapter-node handler in production,
+// fall back to a simple message in test/dev (the Vite dev server handles the UI).
+const svelteKitBuild = path.join(__dirname, '..', 'build', 'handler.js');
+if (fs.existsSync(svelteKitBuild)) {
+  const { handler } = await import(svelteKitBuild);
+  app.use(handler);
+  console.log('SvelteKit handler loaded from build/handler.js');
+} else {
+  console.log('No SvelteKit build found — frontend served by Vite dev server');
+}
 
 // Start the server
 app.listen(PORT, () => {

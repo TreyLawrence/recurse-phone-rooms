@@ -283,7 +283,7 @@ test.describe('Booking API Tests', () => {
 
     // Create times for testing
     const now = new Date();
-    const startTime = new Date(now.getTime() + 24 * 60 * 60 * 1000); // Tomorrow
+    const startTime = new Date(now.getTime() + 48 * 60 * 60 * 1000); // 2 days from now (avoids conflict with filter test at +24h)
     const endTime = new Date(startTime.getTime() + 30 * 60 * 1000); // 30 minutes later
 
     const response = await client.get('/bookings/check-availability', {
