@@ -1,22 +1,24 @@
 #!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
 
-# Display message indicating tests are running
-echo "📋 Running API tests before commit..."
+echo "Running pre-commit checks (type-check + build)..."
+echo ""
 
-# Run API tests
-npm run test:api
-
-# If tests fail, prevent the commit
+# Type-check with svelte-check
+npm run check
 if [ $? -ne 0 ]; then
-  echo "❌ API tests failed. Please fix the tests before committing."
   echo ""
-  echo "🔍 Check if your test database is set up correctly:"
-  echo "   If this is your first time running tests, run: npm run setup:test-db"
-  echo ""
+  echo "Type check failed. Please fix the errors above before committing."
   exit 1
 fi
 
-# If tests pass, allow the commit
-echo "✅ API tests passed. Continuing with commit..."
+# Build to catch SSR issues (e.g. missing browser guards)
+npm run build
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "Build failed. Please fix the errors above before committing."
+  exit 1
+fi
+
+echo ""
+echo "Pre-commit checks passed. Full API tests run in CI."
 exit 0

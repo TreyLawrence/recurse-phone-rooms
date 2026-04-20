@@ -14,6 +14,7 @@
     "dev:all": "concurrently \"npm run server\" \"npm run dev\"",
     "test": "NODE_ENV=test playwright test",
     "test:api": "NODE_ENV=test concurrently --kill-others --success first \"npm run server:test\" \"wait-on http://localhost:3001/api/health && NODE_ENV=test playwright test tests/api/\"",
+    "test:smoke": "npm run build && NODE_ENV=test concurrently --kill-others --success first \"npm run server:test\" \"wait-on http://localhost:3001/api/health && NODE_ENV=test playwright test tests/smoke/\"",
     "test:e2e": "NODE_ENV=test concurrently --kill-others --success first \"npm run server:test\" \"npm run dev\" \"wait-on http://localhost:3001/api/health http://localhost:5173 && NODE_ENV=test playwright test tests/e2e/\"",
     "test:with-server": "NODE_ENV=test concurrently --kill-others --success first \"npm run server:test\" \"wait-on http://localhost:3001/api/health && NODE_ENV=test playwright test\"",
     "test:ui": "NODE_ENV=test playwright test --ui",

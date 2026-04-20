@@ -15,13 +15,15 @@ export interface User {
 // Create a writable store for the user
 export const user = writable<User | null>(null);
 
-// Check if user is logged in on load
-const userJson = localStorage.getItem('recurse_user');
-if (userJson) {
-  try {
-    user.set(JSON.parse(userJson));
-  } catch (err) {
-    localStorage.removeItem('recurse_user');
+// Check if user is logged in on load (browser only — localStorage not available during SSR)
+if (typeof localStorage !== 'undefined') {
+  const userJson = localStorage.getItem('recurse_user');
+  if (userJson) {
+    try {
+      user.set(JSON.parse(userJson));
+    } catch (err) {
+      localStorage.removeItem('recurse_user');
+    }
   }
 }
 

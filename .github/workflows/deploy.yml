@@ -1,13 +1,19 @@
 name: Deploy to Railway
 
 on:
-  push:
+  workflow_run:
+    workflows: ["API Tests"]
+    types: [completed]
     branches: [main]
   workflow_dispatch: # Allow manual triggering
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    # Only deploy if all triggering workflows succeeded (or if manually triggered)
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
 
     steps:
       - name: Checkout
@@ -34,3 +40,45 @@ jobs:
         run: |
           railway up --ci --service recurse-bookings --environment production
 
+      # Post-deploy health check: ensure the app is responding correctly.
+      # Requires the PRODUCTION_URL secret to be set in the repository
+      # (e.g. https://recurse-bookings.up.railway.app).
+      - name: Health check - API
+        run: |
+          BASE_URL="${{ secrets.PRODUCTION_URL }}"
+          if [ -z "$BASE_URL" ]; then
+            echo "::warning::PRODUCTION_URL secret is not set. Skipping health check."
+            exit 0
+          fi
+          echo "Checking $BASE_URL/api/health ..."
+          for i in $(seq 1 12); do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$BASE_URL/api/health" || true)
+            if [ "$STATUS" = "200" ]; then
+              echo "API health check passed (attempt $i)"
+              exit 0
+            fi
+            echo "Attempt $i: got status $STATUS, retrying in 5s..."
+            sleep 5
+          done
+          echo "::error::API health check failed after 60 seconds"
+          exit 1
+
+      - name: Health check - Homepage (SSR)
+        run: |
+          BASE_URL="${{ secrets.PRODUCTION_URL }}"
+          if [ -z "$BASE_URL" ]; then
+            echo "::warning::PRODUCTION_URL secret is not set. Skipping health check."
+            exit 0
+          fi
+          echo "Checking $BASE_URL/ ..."
+          for i in $(seq 1 12); do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$BASE_URL/" || true)
+            if [ "$STATUS" = "200" ]; then
+              echo "Homepage health check passed (attempt $i)"
+              exit 0
+            fi
+            echo "Attempt $i: got status $STATUS, retrying in 5s..."
+            sleep 5
+          done
+          echo "::error::Homepage health check failed after 60 seconds"
+          exit 1
