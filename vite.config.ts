@@ -1,19 +1,23 @@
-import { defineConfig } from 'vite'
-import { svelte } from '@sveltejs/vite-plugin-svelte'
-import { nodePolyfills } from 'vite-plugin-node-polyfills'
+import { defineConfig } from 'vite';
+import { sveltekit } from '@sveltejs/kit/vite';
+import { nodePolyfills } from 'vite-plugin-node-polyfills';
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
-    svelte(),
+    sveltekit(),
     nodePolyfills({
-      // Whether to polyfill `node:` protocol imports.
       protocolImports: true,
-      // Polyfills for specific Node.js globals and modules
       globals: {
         process: true,
         Buffer: true,
       },
     }),
   ],
-})
+  server: {
+    proxy: {
+      '/api': process.env.NODE_ENV === 'test'
+        ? 'http://localhost:3001'
+        : 'http://localhost:3000'
+    }
+  }
+});
