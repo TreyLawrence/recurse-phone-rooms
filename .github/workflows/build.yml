@@ -22,29 +22,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # Cache build output
-      - name: Cache build output
-        uses: actions/cache@v3
-        with:
-          path: |
-            dist
-            node_modules/.vite
-          key: build-${{ runner.os }}-${{ github.sha }}
-          restore-keys: |
-            build-${{ runner.os }}-
-
-      # Temporarily skip TypeScript checks for this PR
-      # - name: Check TypeScript types
-      #   run: npm run check
+      - name: Check TypeScript types
+        run: npm run check
 
       - name: Build application
         run: npm run build
-        # Skip type checking during build
-        env:
-          VITE_SKIP_TS_CHECK: true
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: dist
-          path: dist/

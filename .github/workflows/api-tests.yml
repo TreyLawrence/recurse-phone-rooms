@@ -128,10 +128,16 @@ jobs:
 
       # No need to cache or install Playwright browsers or dependencies - the Docker image has everything!
 
+      - name: Build application
+        run: npm run build
+
       - name: Run API tests
         run: npm run test:api
         env:
           PLAYWRIGHT_JUNIT_OUTPUT_NAME: results/junit-api.xml
+
+      - name: Run SSR smoke tests
+        run: NODE_ENV=test npx concurrently --kill-others --success first "npm run server:test" "npx wait-on http://localhost:3001/api/health && NODE_ENV=test npx playwright test tests/smoke/"
 
       - name: Upload test results
         if: ${{ always() }}
