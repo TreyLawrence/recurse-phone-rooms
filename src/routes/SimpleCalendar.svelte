@@ -560,21 +560,21 @@
                 slotTime.toDateString() === startTime.toDateString();
 
             // Uncomment temporarily to debug specific slots
-            if ((hour === 9 || hour === 10 || hour === 11) && minute === 0) {
-                console.log(
-                    `Debug slot ${date.toDateString()} ${hour}:${minute}`,
-                    {
-                        booking: `${booking.id} (${new Date(booking.start_time).toLocaleString()})`,
-                        slotTime: slotTime.toLocaleString(),
-                        slotEndTime: slotEndTime.toLocaleString(),
-                        bookingStart: startTime.toLocaleString(),
-                        bookingEnd: endTime.toLocaleString(),
-                        isWithinTimeRange,
-                        isSameDay,
-                        matched: isWithinTimeRange && isSameDay,
-                    },
-                );
-            }
+            //if ((hour === 9 || hour === 10 || hour === 11) && minute === 0) {
+            //    console.log(
+            //        `Debug slot ${date.toDateString()} ${hour}:${minute}`,
+            //        {
+            //            booking: `${booking.id} (${new Date(booking.start_time).toLocaleString()})`,
+            //            slotTime: slotTime.toLocaleString(),
+            //            slotEndTime: slotEndTime.toLocaleString(),
+            //            bookingStart: startTime.toLocaleString(),
+            //            bookingEnd: endTime.toLocaleString(),
+            //            isWithinTimeRange,
+            //            isSameDay,
+            //            matched: isWithinTimeRange && isSameDay,
+            //        },
+            //    );
+            //}
 
             return isWithinTimeRange && isSameDay;
         });
